@@ -1,0 +1,140 @@
+/* ==========================================================
+   YOU VS YOU — componente visual aislado
+   Silueta humana limpia + botones "de masa" (textura estriada
+   tipo topográfica, con acento rojo), sobre fondo negro plano.
+   No depende de ningún otro estilo de la página que lo monta:
+   la tipografía se importa aquí mismo.
+   ========================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Archivo:wght@600;800&family=Space+Grotesk:wght@500;700&display=swap');
+
+.yvy2-wrap {
+  --yvy2-font-display: 'Archivo', 'Space Grotesk', 'Inter', system-ui, sans-serif;
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  max-width: 420px;
+  margin: 0 auto;
+  background: #000;
+  border-radius: 20px;
+  overflow: visible;
+  touch-action: none;
+}
+
+.yvy2-figure {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  pointer-events: none;
+  filter: drop-shadow(0 0 2px rgba(255,255,255,0.4)) drop-shadow(0 0 10px rgba(200,205,220,0.16));
+}
+
+.yvy2-hotspot {
+  position: absolute;
+  z-index: 3;
+  width: 38px;
+  height: 38px;
+  transform: translate(-50%, -50%);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* --- Masa estriada tipo huella/topográfica, con acento rojo --- */
+.yvy2-hotspot-dot {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 32% 68%, rgba(255,55,45,0.4) 0%, rgba(255,55,45,0) 48%),
+    repeating-radial-gradient(circle at 40% 34%,
+      #f4f5f9 0px, #f4f5f9 1.3px,
+      #d3d6e0 2px, #d3d6e0 2.6px,
+      #aeb2c1 3.3px, #aeb2c1 3.9px,
+      #8a8e9c 4.6px);
+  border-radius: 42% 58% 63% 37% / 41% 44% 56% 59%;
+  box-shadow:
+    0 3px 9px rgba(0,0,0,0.6),
+    inset 0 1px 2px rgba(255,255,255,0.45),
+    inset 0 -3px 6px rgba(0,0,0,0.35);
+  animation: yvy2Blob 7s ease-in-out infinite;
+  transition: transform 0.25s cubic-bezier(0.33,1,0.68,1), box-shadow 0.25s ease, background 0.35s ease;
+}
+
+@keyframes yvy2Blob {
+  0%, 100% { border-radius: 42% 58% 63% 37% / 41% 44% 56% 59%; }
+  25%      { border-radius: 58% 42% 39% 61% / 55% 60% 40% 45%; }
+  50%      { border-radius: 50% 50% 55% 45% / 62% 42% 58% 38%; }
+  75%      { border-radius: 63% 37% 45% 55% / 44% 58% 42% 56%; }
+}
+
+.yvy2-hotspot:hover .yvy2-hotspot-dot,
+.yvy2-hotspot:focus-visible .yvy2-hotspot-dot {
+  transform: scale(1.18);
+  background:
+    radial-gradient(circle at 32% 68%, rgba(255,60,48,0.65) 0%, rgba(255,60,48,0) 55%),
+    repeating-radial-gradient(circle at 40% 34%,
+      #f8f9fb 0px, #f8f9fb 1.3px,
+      #d9dce4 2px, #d9dce4 2.6px,
+      #b7bac7 3.3px, #b7bac7 3.9px,
+      #90939f 4.6px);
+  box-shadow:
+    0 4px 14px rgba(0,0,0,0.65),
+    0 0 16px 2px rgba(255,60,48,0.35),
+    inset 0 1px 2px rgba(255,255,255,0.5);
+}
+
+.yvy2-hotspot.is-active .yvy2-hotspot-dot {
+  animation: yvy2Blob 7s ease-in-out infinite, yvy2Pulse 2.4s ease-in-out infinite;
+  transform: scale(1.24);
+  background:
+    radial-gradient(circle at 32% 68%, rgba(255,65,50,0.75) 0%, rgba(255,65,50,0) 58%),
+    repeating-radial-gradient(circle at 40% 34%,
+      #fbfbfc 0px, #fbfbfc 1.3px,
+      #dde0e7 2px, #dde0e7 2.6px,
+      #bcbfcb 3.3px, #bcbfcb 3.9px,
+      #979aa6 4.6px);
+  box-shadow:
+    0 4px 16px rgba(0,0,0,0.7),
+    0 0 20px 3px rgba(255,65,50,0.45),
+    inset 0 1px 2px rgba(255,255,255,0.55);
+}
+
+@keyframes yvy2Pulse {
+  0%, 100% { filter: brightness(1); }
+  50%      { filter: brightness(1.08); }
+}
+
+.yvy2-tooltip {
+  position: absolute;
+  bottom: calc(100% + 9px);
+  left: 50%;
+  transform: translate(-50%, 4px);
+  background: rgba(14,13,20,0.94);
+  color: #fff;
+  font-family: var(--yvy2-font-display);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.3rem 0.6rem;
+  border-radius: 8px;
+  white-space: nowrap;
+  border: 1px solid rgba(255,80,65,0.3);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.16s ease, transform 0.16s ease;
+}
+
+.yvy2-hotspot:hover .yvy2-tooltip,
+.yvy2-hotspot:focus-visible .yvy2-tooltip {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .yvy2-hotspot-dot { animation: none; }
+}
