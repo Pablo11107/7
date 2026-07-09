@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Socialclub - Share Your Thoughts</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+    rel="stylesheet"
+  >
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #100F19;
+      color: #fff;
+      opacity: 0;
+      animation: pageFadeIn 0.4s ease forwards;
+    }
+    @keyframes pageFadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .header {
+      background-color: #00000A;
+      text-align: center;
+      padding: 1.75rem 1rem 1.1rem;
+    }
+    .header h1 { font-size: 2.4rem; font-weight: 700; }
+    .header h1 a { text-decoration: none; color: #fff; transition: color 0.2s; }
+    .header h1 a:hover { color: #ccc; }
+    .header .page-tagline { font-size: 0.85rem; color: #777; margin-top: 0.4rem; letter-spacing: 0.02em; }
+
+    /* Barra Feed / Perfil */
+    .view-switch {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      margin: 1.25rem auto 0;
+    }
+    .view-switch button {
+      background: none;
+      border: none;
+      color: #777;
+      font-weight: 700;
+      font-size: 0.85rem;
+      padding: 0.5rem 1.1rem;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: background-color 0.2s, color 0.2s;
+    }
+    .view-switch button:hover { color: #ccc; }
+    .view-switch button.active { background-color: #201F28; color: #F5F5F7; }
+
+    /* Composer */
+    .share-box {
+      background: linear-gradient(180deg, #201F28, #171620);
+      color: #fff;
+      margin: 1.25rem auto;
+      padding: 1.25rem;
+      border-radius: 16px;
+      width: 90%;
+      max-width: 560px;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.06);
+    }
+
+    .composer-top { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.9rem; }
+    .avatar-circle {
+      border-radius: 50%;
+      background-color: #3F3D46;
+      background-size: cover;
+      background-position: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: #F5F5F7;
+      flex-shrink: 0;
+    }
+    .composer-avatar { width: 40px; height: 40px; font-size: 0.95rem; cursor: pointer; }
+    .composer-username { font-weight: 600; font-size: 0.95rem; color: #ddd; cursor: pointer; }
+
+    .share-box textarea {
+      width: 100%;
+      min-height: 90px;
+      margin-bottom: 0.9rem;
+      padding: 0.8rem;
+      border-radius: 12px;
+      border: 2px solid transparent;
+      outline: none;
+      background-color: #100F19;
+      color: #fff;
+      font-size: 1rem;
+      font-family: inherit;
+      resize: none;
+      transition: border-color 0.2s;
+    }
+    .share-box textarea:focus { border-color: #F5F5F7; }
+    .share-box textarea::placeholder { color: #777; }
+
+    .composer-footer { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 0.9rem; }
+    .composer-attach-group { display: flex; gap: 0.5rem; }
+    .file-upload label {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      background-color: #2F2E37; color: #fff;
+      padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer;
+      font-size: 0.85rem; font-weight: 600; transition: background-color 0.2s;
+    }
+    .file-upload label:hover { background-color: #3F3D46; }
+    .file-upload input[type="file"] { display: none; }
+    .attach-book-btn {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      background-color: #2F2E37; color: #fff; border: none;
+      padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer;
+      font-size: 0.85rem; font-weight: 600; font-family: inherit;
+      transition: background-color 0.2s;
+    }
+    .attach-book-btn:hover { background-color: #3F3D46; }
+    .char-count { font-size: 0.78rem; color: #777; }
+
+    /* Vista previa de libro adjunto en el composer */
+    .book-preview-chip {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      background-color: #100F19;
+      border: 2px solid #2F2E37;
+      border-radius: 12px;
+      padding: 0.6rem 0.8rem;
+      margin-bottom: 0.9rem;
+      position: relative;
+    }
+    .book-preview-cover {
+      width: 40px; height: 56px;
+      background-color: #2F2E37;
+      border-radius: 4px;
+      overflow: hidden;
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+    }
+    .book-preview-cover img { width: 100%; height: 100%; object-fit: cover; }
+    .book-preview-text { display: flex; flex-direction: column; overflow: hidden; }
+    .book-preview-title { font-size: 0.85rem; font-weight: 700; color: #F5F5F7; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .book-preview-author { font-size: 0.75rem; color: #999; }
+    .book-preview-chip .image-preview-remove { position: static; margin-left: auto; }
+
+    /* Modal genérico (usado para buscar libros) */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      background-color: rgba(0,0,0,0.7);
+      backdrop-filter: blur(4px);
+      display: flex; justify-content: center; align-items: center;
+      z-index: 999;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: auto; }
+    .modal {
+      position: relative;
+      background: linear-gradient(180deg, #2F2E37, #100F19);
+      color: #fff;
+      padding: 2rem 1.5rem 1.5rem;
+      border-radius: 20px;
+      width: 340px;
+      max-width: 90%;
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.08);
+      transform: scale(0.9) translateY(8px);
+      transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .modal-overlay.open .modal { transform: scale(1) translateY(0); }
+    .modal h3 { font-weight: 600; font-size: 1.1rem; text-align: center; }
+    .modal .close-btn {
+      position: absolute; top: 0.75rem; right: 0.75rem;
+      width: 28px; height: 28px;
+      display: flex; align-items: center; justify-content: center;
+      background-color: rgba(255,255,255,0.08); color: #ccc;
+      font-size: 0.85rem; border-radius: 50%; cursor: pointer;
+      transition: background-color 0.2s, color 0.2s;
+    }
+    .modal .close-btn:hover { background-color: rgba(255,255,255,0.18); color: #fff; }
+
+    .book-search-bar { display: flex; gap: 0.5rem; }
+    .book-search-bar input {
+      flex: 1; padding: 0.6rem 0.8rem; border-radius: 10px;
+      border: 2px solid #2F2E37; background-color: #100F19; color: #fff;
+      font-family: inherit; font-size: 0.9rem; outline: none;
+      transition: border-color 0.2s;
+    }
+    .book-search-bar input:focus { border-color: #F5F5F7; }
+    .book-search-bar button {
+      background-color: #F5F5F7; color: #100F19; border: none;
+      border-radius: 10px; padding: 0 1rem; font-weight: 700;
+      font-size: 0.8rem; text-transform: uppercase; cursor: pointer;
+    }
+    .book-search-results { max-height: 320px; overflow-y: auto; display: flex; flex-direction: column; gap: 0.5rem; }
+    .book-result-row {
+      display: flex; align-items: center; gap: 0.7rem;
+      background-color: #201F28; border-radius: 10px; padding: 0.5rem;
+      cursor: pointer; transition: background-color 0.2s;
+    }
+    .book-result-row:hover { background-color: #2F2E37; }
+    .book-result-cover {
+      width: 38px; height: 52px; border-radius: 4px; overflow: hidden;
+      background-color: #3F3D46; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 1rem;
+    }
+    .book-result-cover img { width: 100%; height: 100%; object-fit: cover; }
+    .book-result-text { display: flex; flex-direction: column; overflow: hidden; }
+    .book-result-title { font-size: 0.82rem; font-weight: 700; color: #F5F5F7; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .book-result-author { font-size: 0.72rem; color: #999; }
+    .book-search-status { text-align: center; color: #777; font-size: 0.85rem; padding: 1rem 0; }
+
+    /* Tarjeta de libro dentro de un post publicado */
+    .post-book-card {
+      display: flex; align-items: center; gap: 0.8rem;
+      background-color: #171620;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px;
+      padding: 0.7rem 0.8rem;
+      margin-top: 0.4rem;
+    }
+    .post-book-cover {
+      width: 44px; height: 60px; border-radius: 4px; overflow: hidden;
+      background-color: #2F2E37; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
+    }
+    .post-book-cover img { width: 100%; height: 100%; object-fit: cover; }
+    .post-book-info { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
+    .post-book-title { font-size: 0.85rem; font-weight: 700; color: #F5F5F7; }
+    .post-book-author { font-size: 0.75rem; color: #999; margin-top: 0.1rem; }
+    .post-book-add-btn {
+      margin-top: 0.4rem;
+      align-self: flex-start;
+      background: none;
+      border: 1.5px solid #3F3D46;
+      color: #ccc;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 0.25rem 0.6rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.2s, color 0.2s;
+    }
+    .post-book-add-btn:hover { color: #fff; border-color: #55525f; }
+    .post-book-add-btn.added { background-color: #F5F5F7; color: #100F19; border-color: #F5F5F7; }
+
+    .image-preview-wrap { position: relative; display: none; margin-bottom: 0.9rem; }
+    .image-preview-wrap.show { display: block; }
+    .image-preview-wrap img { width: 100%; max-height: 220px; object-fit: cover; border-radius: 12px; display: block; }
+    .image-preview-remove {
+      position: absolute; top: 8px; right: 8px; width: 26px; height: 26px;
+      display: flex; align-items: center; justify-content: center;
+      background-color: rgba(0,0,0,0.65); color: #fff; border-radius: 50%; cursor: pointer; font-size: 0.8rem;
+    }
+    .image-preview-remove:hover { background-color: rgba(0,0,0,0.85); }
+
+    button.post-submit {
+      width: 100%; padding: 0.8rem;
+      background-color: #F5F5F7; color: #100F19; border: none; border-radius: 12px;
+      font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; font-size: 0.85rem;
+      cursor: pointer; transition: background-color 0.2s, transform 0.15s, opacity 0.2s;
+    }
+    button.post-submit:hover:not(:disabled) { background-color: #E3E3E8; }
+    button.post-submit:active:not(:disabled) { transform: scale(0.98); }
+    button.post-submit:disabled { opacity: 0.5; cursor: default; }
+
+    /* Feed / listas de posts */
+    .posts-list {
+      width: 90%; max-width: 560px; margin: 0 auto 2rem;
+      display: flex; flex-direction: column; gap: 1rem;
+    }
+    .empty-state { text-align: center; color: #777; font-size: 0.95rem; padding: 2.5rem 1rem; }
+
+    .post {
+      background-color: #201F28; border-radius: 16px; overflow: hidden;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.05);
+      transition: box-shadow 0.2s ease;
+    }
+    .post:hover { box-shadow: 0 12px 28px rgba(0,0,0,0.35); }
+    .post.just-posted { animation: postIn 0.45s cubic-bezier(0.22, 1, 0.36, 1); }
+    @keyframes postIn {
+      from { opacity: 0; transform: translateY(-14px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .post-top { display: flex; align-items: center; gap: 0.7rem; padding: 0.9rem 1rem 0.6rem; }
+    .post-avatar { width: 42px; height: 42px; font-size: 0.9rem; }
+    .post-user-text { display: flex; flex-direction: column; }
+    .post-username { font-weight: 700; color: #F5F5F7; font-size: 0.95rem; }
+    .post-timestamp { font-size: 0.75rem; color: #777; margin-top: 0.1rem; }
+
+    .post-body { padding: 0 1rem 0.9rem; }
+    .post-body p { margin-bottom: 0.7rem; line-height: 1.5; color: #eee; white-space: pre-wrap; }
+    .post-body img { width: 100%; border-radius: 10px; margin-top: 0.3rem; display: block; }
+
+    .post-actions {
+      display: flex; align-items: center; gap: 1.75rem;
+      padding: 0.7rem 1rem 0.9rem;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      margin-top: 0.2rem;
+    }
+    .action-btn {
+      display: flex; align-items: center; gap: 0.4rem;
+      background: none; border: none; color: #888; cursor: pointer;
+      font-size: 0.82rem; font-weight: 600; padding: 0.25rem 0.4rem; border-radius: 8px;
+      transition: color 0.2s, transform 0.15s;
+    }
+    .action-btn:hover { color: #ccc; }
+    .action-btn:active { transform: scale(0.92); }
+    .action-btn svg { width: 18px; height: 18px; flex-shrink: 0; }
+    .action-btn.liked { color: #F5F5F7; }
+    .action-btn.liked svg { fill: #F5F5F7; }
+    .action-btn.reposted { color: #F5F5F7; }
+    .action-btn.saved { color: #F5F5F7; }
+    .action-btn.saved svg { fill: #F5F5F7; }
+    .action-btn.save-action { margin-left: auto; }
+
+    /* Vista de Perfil */
+    #profileView { display: none; width: 90%; max-width: 560px; margin: 1.25rem auto 0; }
+
+    .profile-banner {
+      position: relative;
+      height: 130px;
+      border-radius: 16px 16px 0 0;
+      background: linear-gradient(135deg, #2F2E37, #171620);
+      background-size: cover;
+      background-position: center;
+      overflow: hidden;
+    }
+    .banner-edit-btn {
+      position: absolute; bottom: 10px; right: 10px;
+      background-color: rgba(0,0,0,0.55); color: #fff;
+      border: none; border-radius: 20px; padding: 0.4rem 0.9rem;
+      font-size: 0.75rem; font-weight: 600; cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    .banner-edit-btn:hover { background-color: rgba(0,0,0,0.75); }
+
+    .profile-header {
+      position: relative;
+      background-color: #201F28;
+      border-radius: 0 0 16px 16px;
+      padding: 0 1.25rem 1.25rem;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.05);
+    }
+    .profile-avatar-lg {
+      width: 84px; height: 84px; font-size: 1.8rem;
+      border: 4px solid #201F28;
+      margin-top: -42px;
+      position: relative;
+    }
+    .avatar-edit-btn {
+      position: absolute;
+      top: -14px; left: 68px;
+      width: 26px; height: 26px;
+      background-color: #F5F5F7; color: #100F19;
+      border: none; border-radius: 50%;
+      font-size: 0.75rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .profile-name-row { display: flex; align-items: center; gap: 0.6rem; margin-top: 0.9rem; }
+    .username-input {
+      flex: 1;
+      background-color: #100F19;
+      border: 2px solid #2F2E37;
+      border-radius: 10px;
+      padding: 0.5rem 0.8rem;
+      color: #fff;
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 600;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .username-input:focus { border-color: #F5F5F7; }
+    .profile-header button.save-username-btn {
+      background-color: #2F2E37; color: #F5F5F7; border: none;
+      border-radius: 10px; padding: 0.5rem 0.9rem; font-size: 0.8rem;
+      font-weight: 700; cursor: pointer; transition: background-color 0.2s;
+    }
+    .profile-header button.save-username-btn:hover { background-color: #3F3D46; }
+    .profile-bio { font-size: 0.85rem; color: #999; margin-top: 0.6rem; }
+
+    .profile-tabs {
+      display: flex; gap: 0.4rem;
+      margin: 1.1rem auto 1rem;
+      width: 90%; max-width: 560px;
+    }
+    .profile-tab {
+      flex: 1; background-color: #201F28; color: #999;
+      border: none; padding: 0.6rem 0; border-radius: 12px;
+      font-size: 0.8rem; font-weight: 700; cursor: pointer;
+      transition: background-color 0.2s, color 0.2s;
+    }
+    .profile-tab.active { background-color: #F5F5F7; color: #100F19; }
+
+    /* Toast */
+    .focus-toast {
+      position: fixed; bottom: 30px; left: 50%; transform: translate(-50%, 16px);
+      background-color: #201F28; color: #F5F5F7;
+      padding: 0.8rem 1.4rem; border-radius: 14px;
+      font-size: 0.9rem; font-weight: 600; text-align: center; max-width: 85%;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.07);
+      opacity: 0; pointer-events: none; transition: opacity 0.3s ease, transform 0.3s ease; z-index: 1200;
+    }
+    .focus-toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+    /* Footer */
+    .footer { background-color: #00000A; padding: 1rem 0; text-align: center; }
+    .bottom-nav { display: flex; justify-content: space-around; align-items: center; }
+    .nav-item a {
+      display: flex; flex-direction: column; align-items: center;
+      text-decoration: none; color: #fff;
+      padding: 0.3rem 0.9rem; border-radius: 12px;
+      transition: background-color 0.2s, opacity 0.2s;
+    }
+    .nav-item span { font-size: 0.9rem; margin-top: 0.5rem; }
+    .nav-item a:hover { opacity: 0.85; }
+    .nav-item.active a { background-color: rgba(255,255,255,0.06); }
+    .image { width: 50px; height: 50px; margin-bottom: 0.5rem; overflow: hidden; border-radius: 50%; background-color: #201F28; }
+    .image img { width: 100%; height: 100%; object-fit: cover; }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <h1><a href="index.html">Focus.</a></h1>
+    <div class="page-tagline">Socialclub — share the wins that keep you going</div>
+  </header>
+
+  <div class="view-switch">
+    <button id="feedTabBtn" class="active">Feed</button>
+    <button id="profileTabBtn">My Profile</button>
+  </div>
+
+  <!-- Vista de Feed -->
+  <section id="feedView">
+    <section class="share-box">
+      <div class="composer-top">
+        <div class="avatar-circle composer-avatar" id="composerAvatar"></div>
+        <span class="composer-username" id="composerUsername">@FocusUser</span>
+      </div>
+
+      <textarea id="postText" placeholder="Share your Focus. thoughts..." maxlength="500"></textarea>
+
+      <div class="image-preview-wrap" id="imagePreviewWrap">
+        <img id="imagePreviewImg" src="" alt="Preview">
+        <div class="image-preview-remove" id="imagePreviewRemove">✕</div>
+      </div>
+
+      <div class="book-preview-chip" id="bookPreviewChip" style="display:none;">
+        <div class="book-preview-cover" id="bookPreviewCover"></div>
+        <div class="book-preview-text">
+          <span class="book-preview-title" id="bookPreviewTitle"></span>
+          <span class="book-preview-author" id="bookPreviewAuthor"></span>
+        </div>
+        <div class="image-preview-remove" id="bookPreviewRemove">✕</div>
+      </div>
+
+      <div class="composer-footer">
+        <div class="composer-attach-group">
+          <div class="file-upload">
+            <label for="postImage">📷 Image</label>
+            <input type="file" id="postImage" accept="image/*">
+          </div>
+          <button type="button" class="attach-book-btn" id="attachBookBtn">📚 Book</button>
+        </div>
+        <span class="char-count" id="charCount">0 / 500</span>
+      </div>
+
+      <button class="post-submit" id="postButton">Post</button>
+    </section>
+
+    <section class="posts-list" id="postsContainer"></section>
+  </section>
+
+  <!-- Modal: buscar y adjuntar un libro -->
+  <div class="modal-overlay" id="bookSearchModal">
+    <div class="modal book-search-modal">
+      <div class="close-btn" id="closeBookSearchModal">✕</div>
+      <h3>Attach a Book</h3>
+      <div class="book-search-bar">
+        <input type="text" id="bookSearchInput" placeholder="Search title or author...">
+        <button id="bookSearchBtn">Search</button>
+      </div>
+      <div class="book-search-results" id="bookSearchResults"></div>
+    </div>
+  </div>
+
+  <!-- Vista de Perfil -->
+  <section id="profileView">
+    <div class="profile-banner" id="profileBanner">
+      <button class="banner-edit-btn" id="bannerEditBtn">Change banner</button>
+      <input type="file" id="bannerInput" accept="image/*" hidden>
+    </div>
+    <div class="profile-header">
+      <div class="avatar-circle profile-avatar-lg" id="profileAvatarLg"></div>
+      <button class="avatar-edit-btn" id="avatarEditBtn">✎</button>
+      <input type="file" id="profileAvatarInput" accept="image/*" hidden>
+
+      <div class="profile-name-row">
+        <input type="text" id="profileUsernameInput" class="username-input" placeholder="username">
+        <button class="save-username-btn" id="saveUsernameBtn">Save</button>
+      </div>
+      <p class="profile-bio" id="profileBio"></p>
+    </div>
+  </section>
+
+  <div class="profile-tabs" id="profileTabs" style="display:none;">
+    <button class="profile-tab active" data-tab="posts">Focus Thoughts</button>
+    <button class="profile-tab" data-tab="reposts">Reposts</button>
+    <button class="profile-tab" data-tab="saved">Saved</button>
+  </div>
+  <section class="posts-list" id="profilePostsContainer" style="display:none;"></section>
+
+  <footer class="footer">
+    <nav class="bottom-nav">
+      <div class="nav-item">
+        <a href="memories.html">
+          <div class="image"><img src="memories.webp" alt="Memories"></div>
+          <span>Memories.</span>
+        </a>
+      </div>
+      <div class="nav-item active">
+        <a href="socialclub.html">
+          <div class="image"><img src="person.png" alt="Socialclub"></div>
+          <span>Socialclub.</span>
+        </a>
+      </div>
+      <div class="nav-item">
+        <a href="communities.html">
+          <div class="image"><img src="communities.png" alt="Communities"></div>
+          <span>Communities.</span>
+        </a>
+      </div>
+      <div class="nav-item">
+        <a href="legacy.html">
+          <div class="image"><span style="font-size:1.4rem;">🏛️</span></div>
+          <span>Legacy.</span>
+        </a>
+      </div>
+    </nav>
+  </footer>
+
+  <div class="focus-toast" id="focusToast"></div>
+
+  <script type="module">
+    import {
+      requireAuth, loadUserDoc, saveUserDoc, resizeImageFile,
+      createPost, getFeedPosts, getUserInteractions,
+      toggleLike, toggleRepost, toggleSave,
+      getUserPosts, getItems, addItem
+    } from "./firebase-init.js";
+
+    const user = await requireAuth();
+    const uid = user.uid;
+
+    const postText           = document.getElementById('postText');
+    const postImage          = document.getElementById('postImage');
+    const postButton         = document.getElementById('postButton');
+    const postsContainer     = document.getElementById('postsContainer');
+    const charCount          = document.getElementById('charCount');
+    const imagePreviewWrap   = document.getElementById('imagePreviewWrap');
+    const imagePreviewImg    = document.getElementById('imagePreviewImg');
+    const imagePreviewRemove = document.getElementById('imagePreviewRemove');
+    const attachBookBtn      = document.getElementById('attachBookBtn');
+    const bookPreviewChip    = document.getElementById('bookPreviewChip');
+    const bookPreviewCover   = document.getElementById('bookPreviewCover');
+    const bookPreviewTitle   = document.getElementById('bookPreviewTitle');
+    const bookPreviewAuthor  = document.getElementById('bookPreviewAuthor');
+    const bookPreviewRemove  = document.getElementById('bookPreviewRemove');
+    const bookSearchModal    = document.getElementById('bookSearchModal');
+    const closeBookSearchModal = document.getElementById('closeBookSearchModal');
+    const bookSearchInput    = document.getElementById('bookSearchInput');
+    const bookSearchBtn      = document.getElementById('bookSearchBtn');
+    const bookSearchResults  = document.getElementById('bookSearchResults');
+    let selectedBook = null;
+    const composerAvatar     = document.getElementById('composerAvatar');
+    const composerUsername   = document.getElementById('composerUsername');
+    const focusToast         = document.getElementById('focusToast');
+
+    let toastTimer;
+    function showToast(message) {
+      focusToast.textContent = message;
+      focusToast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => focusToast.classList.remove('show'), 2400);
+    }
+
+    const ICONS = {
+      heart: `<svg viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" fill="none"><path d="M12 21s-6.7-4.35-9.33-8.28C.86 10.06 1.6 6.6 4.6 5.2c2.13-.99 4.43-.2 5.7 1.6.4.57.7 1.2.7 1.2s.3-.63.7-1.2c1.27-1.8 3.57-2.59 5.7-1.6 3 1.4 3.74 4.86 1.93 7.52C18.7 16.65 12 21 12 21z"/></svg>`,
+      repost: `<svg viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>`,
+      bookmark: `<svg viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" fill="none"><path d="M6 4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18l-6-4-6 4V4z"/></svg>`
+    };
+
+    // ---- Perfil del usuario actual ----
+    let savedData = await loadUserDoc(uid);
+    let profileInfo = savedData.profileInfo || {};
+    let displayName = profileInfo.userName || profileInfo.realName || "FocusUser";
+    let myInitial = () => displayName.charAt(0).toUpperCase();
+
+    function applyAvatar(el, avatarUrl, initial) {
+      if (avatarUrl) { el.style.backgroundImage = `url(${avatarUrl})`; el.textContent = ""; }
+      else { el.style.backgroundImage = "none"; el.textContent = initial; }
+    }
+    function refreshComposerIdentity() {
+      applyAvatar(composerAvatar, profileInfo.profilePic, myInitial());
+      composerUsername.textContent = "@" + displayName;
+    }
+    refreshComposerIdentity();
+
+    // Lista de lectura del usuario, para saber qué libros ya tiene guardados
+    let myReadingList = await getItems(uid, "books", 200);
+
+    function coverUrl(coverId, size = "M") {
+      return coverId ? `https://covers.openlibrary.org/b/id/${coverId}-${size}.jpg` : null;
+    }
+    function escapeAttr(str) {
+      return (str || '').replace(/"/g, '&quot;');
+    }
+
+    // ---- Adjuntar libro al post ----
+    attachBookBtn.addEventListener('click', () => {
+      bookSearchInput.value = '';
+      bookSearchResults.innerHTML = '';
+      bookSearchModal.classList.add('open');
+      setTimeout(() => bookSearchInput.focus(), 200);
+    });
+    closeBookSearchModal.addEventListener('click', () => bookSearchModal.classList.remove('open'));
+    bookSearchModal.addEventListener('click', (e) => { if (e.target === bookSearchModal) bookSearchModal.classList.remove('open'); });
+
+    async function runBookSearch() {
+      const q = bookSearchInput.value.trim();
+      if (!q) return;
+      bookSearchResults.innerHTML = `<p class="book-search-status">Searching...</p>`;
+      try {
+        const res = await fetch(`https://openlibrary.org/search.json?q=${encodeURIComponent(q)}&limit=10`);
+        if (!res.ok) throw new Error("Open Library request failed");
+        const data = await res.json();
+        renderBookResults(data.docs || []);
+      } catch (err) {
+        console.error(err);
+        bookSearchResults.innerHTML = `<p class="book-search-status">Couldn't reach the book catalog. Try again.</p>`;
+      }
+    }
+    function renderBookResults(docs) {
+      if (docs.length === 0) {
+        bookSearchResults.innerHTML = `<p class="book-search-status">No books found.</p>`;
+        return;
+      }
+      bookSearchResults.innerHTML = docs.map((doc) => {
+        const author = (doc.author_name || []).slice(0, 2).join(', ');
+        return `
+          <div class="book-result-row"
+            data-work-key="${doc.key}"
+            data-title="${escapeAttr(doc.title)}"
+            data-author="${escapeAttr(author)}"
+            data-year="${doc.first_publish_year || ''}"
+            data-cover-id="${doc.cover_i || ''}">
+            <div class="book-result-cover">${doc.cover_i ? `<img src="${coverUrl(doc.cover_i)}" alt="">` : '📕'}</div>
+            <div class="book-result-text">
+              <span class="book-result-title">${escapeHtml(doc.title)}</span>
+              <span class="book-result-author">${escapeHtml(author || 'Unknown author')}</span>
+            </div>
+          </div>`;
+      }).join('');
+    }
+    bookSearchBtn.addEventListener('click', runBookSearch);
+    bookSearchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') runBookSearch(); });
+
+    bookSearchResults.addEventListener('click', (e) => {
+      const row = e.target.closest('.book-result-row');
+      if (!row) return;
+      selectedBook = {
+        workKey: row.dataset.workKey,
+        title: row.dataset.title,
+        author: row.dataset.author,
+        year: row.dataset.year || null,
+        coverId: row.dataset.coverId || null
+      };
+      // Adjuntar un libro y una imagen a la vez no tiene sentido visualmente: son excluyentes
+      postImage.value = '';
+      imagePreviewImg.dataset.resized = '';
+      imagePreviewWrap.classList.remove('show');
+
+      bookPreviewCover.innerHTML = selectedBook.coverId ? `<img src="${coverUrl(selectedBook.coverId)}" alt="">` : '📕';
+      bookPreviewTitle.textContent = selectedBook.title;
+      bookPreviewAuthor.textContent = selectedBook.author || 'Unknown author';
+      bookPreviewChip.style.display = 'flex';
+
+      bookSearchModal.classList.remove('open');
+    });
+    bookPreviewRemove.addEventListener('click', () => {
+      selectedBook = null;
+      bookPreviewChip.style.display = 'none';
+    });
+
+    // ---- Feed global ----
+    let posts = await getFeedPosts(30);
+    let interactions = {}; // { postId: { liked, reposted, saved } }
+    await Promise.all(posts.map(async (post) => {
+      interactions[post.id] = await getUserInteractions(post.id, uid);
+    }));
+
+    function formatRelativeTime(post) {
+      if (!post.createdAt || typeof post.createdAt.toDate !== 'function') return "Just now";
+      const diffMs = Date.now() - post.createdAt.toDate().getTime();
+      const mins = Math.floor(diffMs / 60000);
+      if (mins < 1) return "Just now";
+      if (mins < 60) return `${mins}m ago`;
+      const hours = Math.floor(mins / 60);
+      if (hours < 24) return `${hours}h ago`;
+      const days = Math.floor(hours / 24);
+      return `${days}d ago`;
+    }
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str || '';
+      return div.innerHTML;
+    }
+
+    function renderPostCard(post, animate = false) {
+      const inter = interactions[post.id] || { liked: false, reposted: false, saved: false };
+      const initial = (post.authorName || "F").charAt(0).toUpperCase();
+      const alreadyInList = post.book && myReadingList.some(b => b.workKey === post.book.workKey);
+      return `
+        <article class="post ${animate ? 'just-posted' : ''}">
+          <div class="post-top">
+            <div class="avatar-circle post-avatar" style="${post.authorAvatar ? `background-image:url(${post.authorAvatar})` : ''}">
+              ${post.authorAvatar ? '' : initial}
+            </div>
+            <div class="post-user-text">
+              <span class="post-username">@${escapeHtml(post.authorName || 'FocusUser')}</span>
+              <span class="post-timestamp">${formatRelativeTime(post)}</span>
+            </div>
+          </div>
+          <div class="post-body">
+            <p>${escapeHtml(post.text)}</p>
+            ${post.image ? `<img src="${post.image}" alt="Post Image">` : ''}
+            ${post.book ? `
+              <div class="post-book-card">
+                <div class="post-book-cover">${post.book.coverId ? `<img src="${coverUrl(post.book.coverId)}" alt="">` : '📕'}</div>
+                <div class="post-book-info">
+                  <span class="post-book-title">${escapeHtml(post.book.title)}</span>
+                  <span class="post-book-author">${escapeHtml(post.book.author || 'Unknown author')}</span>
+                  <button class="post-book-add-btn ${alreadyInList ? 'added' : ''}"
+                    data-work-key="${post.book.workKey}"
+                    data-title="${escapeAttr(post.book.title)}"
+                    data-author="${escapeAttr(post.book.author)}"
+                    data-year="${post.book.year || ''}"
+                    data-cover-id="${post.book.coverId || ''}"
+                    ${alreadyInList ? 'disabled' : ''}>
+                    ${alreadyInList ? 'In your list ✓' : '+ Add to my list'}
+                  </button>
+                </div>
+              </div>
+            ` : ''}
+          </div>
+          <div class="post-actions">
+            <button class="action-btn like-btn ${inter.liked ? 'liked' : ''}" data-post-id="${post.id}">
+              ${ICONS.heart}<span class="count">${post.likesCount || 0}</span>
+            </button>
+            <button class="action-btn repost-btn ${inter.reposted ? 'reposted' : ''}" data-post-id="${post.id}">
+              ${ICONS.repost}<span class="count">${post.repostsCount || 0}</span>
+            </button>
+            <button class="action-btn save-action ${inter.saved ? 'saved' : ''}" data-post-id="${post.id}">
+              ${ICONS.bookmark}
+            </button>
+          </div>
+        </article>`;
+    }
+
+    function renderPosts(animateFirst = false) {
+      if (posts.length === 0) {
+        postsContainer.innerHTML = `<p class="empty-state">No posts yet — be the first to share a Focus moment.</p>`;
+        return;
+      }
+      postsContainer.innerHTML = posts.map((p, i) => renderPostCard(p, animateFirst && i === 0)).join('');
+    }
+    renderPosts();
+
+    // Manejo de like / repost / guardar / añadir libro (delegado, sirve para feed y perfil)
+    async function handleFeedClick(e, list) {
+      const likeBtn = e.target.closest('.like-btn');
+      const repostBtn = e.target.closest('.repost-btn');
+      const saveBtn = e.target.closest('.save-action');
+      const addBookBtn = e.target.closest('.post-book-add-btn');
+
+      if (addBookBtn && !addBookBtn.disabled) {
+        addBookBtn.disabled = true;
+        addBookBtn.textContent = "Adding...";
+        const bookData = {
+          workKey: addBookBtn.dataset.workKey,
+          title: addBookBtn.dataset.title,
+          author: addBookBtn.dataset.author,
+          year: addBookBtn.dataset.year || null,
+          coverId: addBookBtn.dataset.coverId || null
+        };
+        try {
+          const newId = await addItem(uid, "books", bookData);
+          myReadingList.unshift({ id: newId, ...bookData });
+          addBookBtn.textContent = "In your list ✓";
+          addBookBtn.classList.add('added');
+          showToast(`Added "${bookData.title}" to your reading list!`);
+        } catch (err) {
+          console.error(err);
+          addBookBtn.disabled = false;
+          addBookBtn.textContent = "+ Add to my list";
+          showToast("Couldn't add that book. Try again.");
+        }
+        return;
+      }
+
+      if (!likeBtn && !repostBtn && !saveBtn) return;
+
+      const postId = (likeBtn || repostBtn || saveBtn).dataset.postId;
+      let post = posts.find(p => p.id === postId) || list.find(p => p.id === postId);
+      if (!post) return;
+      if (!interactions[postId]) interactions[postId] = { liked: false, reposted: false, saved: false };
+
+      if (likeBtn) {
+        const was = interactions[postId].liked;
+        interactions[postId].liked = !was;
+        post.likesCount = (post.likesCount || 0) + (was ? -1 : 1);
+        rerenderCurrentView();
+        try { await toggleLike(postId, uid, was); }
+        catch (err) { console.error(err); showToast("Couldn't update like."); }
+      }
+      if (repostBtn) {
+        const was = interactions[postId].reposted;
+        interactions[postId].reposted = !was;
+        post.repostsCount = (post.repostsCount || 0) + (was ? -1 : 1);
+        rerenderCurrentView();
+        showToast(was ? "Repost removed" : "Reposted!");
+        try { await toggleRepost(postId, uid, was, post); }
+        catch (err) { console.error(err); showToast("Couldn't update repost."); }
+      }
+      if (saveBtn) {
+        const was = interactions[postId].saved;
+        interactions[postId].saved = !was;
+        rerenderCurrentView();
+        showToast(was ? "Removed from saved" : "Saved!");
+        try { await toggleSave(uid, postId, post, was); }
+        catch (err) { console.error(err); showToast("Couldn't save post."); }
+      }
+    }
+
+    postsContainer.addEventListener('click', (e) => handleFeedClick(e, posts));
+
+    postText.addEventListener('input', () => {
+      charCount.textContent = `${postText.value.length} / 500`;
+    });
+
+    postImage.addEventListener('change', async () => {
+      const file = postImage.files[0];
+      if (!file) { imagePreviewWrap.classList.remove('show'); return; }
+      // Adjuntar imagen y libro a la vez no tiene sentido: son excluyentes
+      selectedBook = null;
+      bookPreviewChip.style.display = 'none';
+
+      const resized = await resizeImageFile(file, 900, 0.72);
+      imagePreviewImg.src = resized;
+      imagePreviewImg.dataset.resized = resized;
+      imagePreviewWrap.classList.add('show');
+    });
+
+    imagePreviewRemove.addEventListener('click', () => {
+      postImage.value = '';
+      imagePreviewImg.dataset.resized = '';
+      imagePreviewWrap.classList.remove('show');
+    });
+
+    async function savePost() {
+      const textValue = postText.value.trim();
+      const resizedImage = imagePreviewImg.dataset.resized || null;
+      if (!textValue && !resizedImage && !selectedBook) {
+        showToast("Write something, attach an image, or attach a book first.");
+        return;
+      }
+
+      postButton.disabled = true;
+      postButton.textContent = "Posting...";
+
+      try {
+        const newPostData = { text: textValue, image: resizedImage, book: selectedBook };
+        const newId = await createPost(uid, { name: displayName, avatar: profileInfo.profilePic }, newPostData);
+        posts.unshift({
+          id: newId, authorId: uid, authorName: displayName,
+          authorAvatar: profileInfo.profilePic || null,
+          text: textValue, image: resizedImage, book: selectedBook,
+          likesCount: 0, repostsCount: 0, createdAt: null
+        });
+        interactions[newId] = { liked: false, reposted: false, saved: false };
+        renderPosts(true);
+        postText.value = '';
+        postImage.value = '';
+        imagePreviewImg.dataset.resized = '';
+        imagePreviewWrap.classList.remove('show');
+        selectedBook = null;
+        bookPreviewChip.style.display = 'none';
+        charCount.textContent = "0 / 500";
+        showToast("Posted to Socialclub!");
+      } catch (err) {
+        console.error(err);
+        showToast("Couldn't publish your post. Try again.");
+      } finally {
+        postButton.disabled = false;
+        postButton.textContent = "Post";
+      }
+    }
+    postButton.addEventListener('click', savePost);
+
+    // =======================================================
+    // Vista de Perfil
+    // =======================================================
+    const feedTabBtn      = document.getElementById('feedTabBtn');
+    const profileTabBtn   = document.getElementById('profileTabBtn');
+    const feedView        = document.getElementById('feedView');
+    const profileView     = document.getElementById('profileView');
+    const profileTabs     = document.getElementById('profileTabs');
+    const profilePostsContainer = document.getElementById('profilePostsContainer');
+
+    const profileBanner       = document.getElementById('profileBanner');
+    const bannerEditBtn       = document.getElementById('bannerEditBtn');
+    const bannerInput         = document.getElementById('bannerInput');
+    const profileAvatarLg     = document.getElementById('profileAvatarLg');
+    const avatarEditBtn       = document.getElementById('avatarEditBtn');
+    const profileAvatarInput  = document.getElementById('profileAvatarInput');
+    const profileUsernameInput= document.getElementById('profileUsernameInput');
+    const saveUsernameBtn     = document.getElementById('saveUsernameBtn');
+    const profileBio          = document.getElementById('profileBio');
+
+    let currentProfileTab = 'posts';
+    let profileLists = { posts: null, reposts: null, saved: null };
+
+    function refreshProfileHeader() {
+      profileBanner.style.backgroundImage = profileInfo.banner ? `url(${profileInfo.banner})` : "none";
+      applyAvatar(profileAvatarLg, profileInfo.profilePic, myInitial());
+      profileUsernameInput.value = displayName;
+      profileBio.textContent = profileInfo.description || "No bio yet — add one from your Focus profile.";
+    }
+
+    function rerenderCurrentView() {
+      if (profileView.style.display !== 'none') {
+        renderProfileTab();
+      } else {
+        renderPosts();
+      }
+    }
+
+    async function renderProfileTab() {
+      let list = profileLists[currentProfileTab];
+      if (!list) {
+        if (currentProfileTab === 'posts') list = await getUserPosts(uid);
+        else if (currentProfileTab === 'reposts') list = await getItems(uid, "reposted", 50);
+        else list = await getItems(uid, "saved", 50);
+        profileLists[currentProfileTab] = list;
+
+        // Nos aseguramos de tener el estado de interacción de estos posts también
+        await Promise.all(list.map(async (post) => {
+          if (!interactions[post.id]) {
+            interactions[post.id] = await getUserInteractions(post.id, uid);
+          }
+        }));
+      }
+
+      if (list.length === 0) {
+        const messages = {
+          posts: "You haven't shared any Focus thoughts yet.",
+          reposts: "You haven't reposted anything yet.",
+          saved: "You haven't saved any posts yet."
+        };
+        profilePostsContainer.innerHTML = `<p class="empty-state">${messages[currentProfileTab]}</p>`;
+        return;
+      }
+      profilePostsContainer.innerHTML = list.map(p => renderPostCard(p)).join('');
+    }
+    profilePostsContainer.addEventListener('click', (e) => handleFeedClick(e, profileLists[currentProfileTab] || []));
+
+    function showFeedView() {
+      feedTabBtn.classList.add('active');
+      profileTabBtn.classList.remove('active');
+      feedView.style.display = 'block';
+      profileView.style.display = 'none';
+      profileTabs.style.display = 'none';
+      profilePostsContainer.style.display = 'none';
+    }
+    function showProfileView() {
+      feedTabBtn.classList.remove('active');
+      profileTabBtn.classList.add('active');
+      feedView.style.display = 'none';
+      profileView.style.display = 'block';
+      profileTabs.style.display = 'flex';
+      profilePostsContainer.style.display = 'flex';
+      refreshProfileHeader();
+      renderProfileTab();
+    }
+    feedTabBtn.addEventListener('click', showFeedView);
+    profileTabBtn.addEventListener('click', showProfileView);
+    composerAvatar.addEventListener('click', showProfileView);
+    composerUsername.addEventListener('click', showProfileView);
+
+    document.querySelectorAll('.profile-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.profile-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        currentProfileTab = tab.dataset.tab;
+        renderProfileTab();
+      });
+    });
+
+    bannerEditBtn.addEventListener('click', () => bannerInput.click());
+    bannerInput.addEventListener('change', async () => {
+      const file = bannerInput.files[0];
+      if (!file) return;
+      const resized = await resizeImageFile(file, 1000, 0.75);
+      profileInfo.banner = resized;
+      await saveUserDoc(uid, { profileInfo });
+      refreshProfileHeader();
+      showToast("Banner updated!");
+    });
+
+    avatarEditBtn.addEventListener('click', () => profileAvatarInput.click());
+    profileAvatarInput.addEventListener('change', async () => {
+      const file = profileAvatarInput.files[0];
+      if (!file) return;
+      const resized = await resizeImageFile(file, 400, 0.8);
+      profileInfo.profilePic = resized;
+      await saveUserDoc(uid, { profileInfo });
+      refreshProfileHeader();
+      refreshComposerIdentity();
+      showToast("Profile photo updated!");
+    });
+
+    saveUsernameBtn.addEventListener('click', async () => {
+      const newName = profileUsernameInput.value.trim();
+      if (!newName) { showToast("Username can't be empty."); return; }
+      profileInfo.userName = newName;
+      displayName = newName;
+      await saveUserDoc(uid, { profileInfo });
+      refreshComposerIdentity();
+      showToast("Username updated! (New posts will show it — older posts keep the name you had then.)");
+    });
+
+    /* -- Transición dinámica entre páginas -- */
+    document.querySelectorAll('.nav-item a, .header h1 a').forEach(link => {
+      link.addEventListener('click', (e) => {
+        const href = link.getAttribute('href');
+        if (!href || href.startsWith('#')) return;
+        e.preventDefault();
+        document.body.style.transition = 'opacity 0.22s ease, transform 0.22s ease';
+        document.body.style.opacity = '0';
+        document.body.style.transform = 'translateY(-6px)';
+        setTimeout(() => { window.location.href = href; }, 200);
+      });
+    });
+  </script>
+</body>
+</html>

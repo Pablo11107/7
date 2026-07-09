@@ -1,0 +1,1240 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Focus - Main Page</title>
+  
+  <!-- Fuente Inter desde Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link 
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" 
+    rel="stylesheet"
+  >
+  
+  <style>
+    /* Reset simple */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif; 
+      background-color: #100F19; 
+      color: #fff;
+      line-height: 1.5;
+      opacity: 0;
+      animation: pageFadeIn 0.4s ease forwards;
+    }
+    @keyframes pageFadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Header */
+    .header {
+      background-color: #00000A;
+      text-align: center;
+      padding: 2rem 1rem;
+    }
+    .header h1 { font-size: 3rem; font-weight: 700; }
+    .header .page-tagline {
+      font-size: 0.85rem;
+      color: #777;
+      margin-top: 0.4rem;
+      letter-spacing: 0.02em;
+    }
+    .header h1 {
+      font-size: 3rem;
+      font-weight: 700;
+      margin: 0;
+    }
+    .header h1 a {
+      text-decoration: none;
+      color: #ffffff;
+    }
+
+    /* Sección: Year progress */
+    .year-progress-section {
+      text-align: center;
+      padding: 2rem 1rem;
+    }
+    .year-progress-section h2 {
+      font-size: 1.8rem;
+      margin-bottom: 1rem;
+      font-weight: 600;
+    }
+    #yearProgressLabel {
+      margin-top: 1rem;
+      font-size: 1rem;
+    }
+
+    /* Barra de progreso base */
+    .progress-container {
+      width: 80%;
+      margin: 0 auto;
+      background-color: #201F28; 
+      border-radius: 50px;
+      height: 24px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05);
+    }
+    .progress-bar {
+      height: 100%;
+      width: 0%; 
+      background: linear-gradient(90deg, #55525f, #d9d8e0 70%, #F5F5F7);
+      border-radius: 50px;
+      transition: width 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .progress-container.small {
+      height: 14px;
+      background-color: #201F28;
+    }
+
+    /* Sección: categorías */
+    .categories-section {
+      padding: 2rem 1rem;
+      text-align: center;
+    }
+    .categories-section h2 {
+      font-size: 1.5rem;
+      margin-bottom: 2rem;
+      font-weight: 600;
+    }
+    .categories-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    /* Tarjetas de cada categoría: tiles con icono */
+    .category-card {
+      background: linear-gradient(180deg, #201F28, #171620);
+      padding: 1.5rem 1rem 1.25rem;
+      border-radius: 20px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.6rem;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.05);
+      transition: transform 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease;
+    }
+    .category-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 14px 28px rgba(0,0,0,0.35);
+    }
+    .category-card:active {
+      transform: translateY(-1px);
+    }
+
+    .category-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background-color: #2F2E37;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      transition: background-color 0.25s ease;
+    }
+    .category-card:hover .category-icon {
+      background-color: #3F3D46;
+    }
+
+    .category-stat {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #F5F5F7;
+      line-height: 1;
+    }
+    .category-stat .unit {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #888;
+      margin-left: 1px;
+    }
+
+    .category-label {
+      font-size: 0.72rem;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-weight: 600;
+      margin-top: -0.35rem;
+    }
+
+    /* Sección: botones y opciones */
+    .next-actions-section {
+      text-align: center;
+      padding: 2rem 1rem;
+    }
+    .next-actions-section h2 {
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+      font-weight: 600;
+    }
+    .btn.action-btn {
+      display: block;
+      width: 70%;
+      margin: 0.5rem auto;
+      padding: 1rem;
+      background-color: #2F2E37;
+      color: #F5F5F7;
+      border: none;
+      border-radius: 30px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      font-weight: 600;
+    }
+    .btn.action-btn:hover {
+      background-color: #3F3D46;
+    }
+
+    /* Icono de configuración */
+    .settings-icon {
+      margin-top: 2rem;
+    }
+    .settings-icon .gear {
+      display: inline-block;
+      width: 50px;
+      height: 50px;
+      background-color: #3F3D46;
+      border-radius: 10px;
+      position: relative;
+    }
+    .settings-icon .gear::before,
+    .settings-icon .gear::after {
+      content: '';
+      position: absolute;
+      background-color: #201F28;
+      border-radius: 50%;
+    }
+    .settings-icon .gear::before {
+      width: 8px;
+      height: 8px;
+      left: calc(50% - 4px);
+      top: calc(50% - 4px);
+    }
+    .settings-icon .gear::after {
+      width: 6px;
+      height: 6px;
+      left: calc(50% - 3px);
+      top: calc(50% - 3px);
+      background-color: #100F19;
+    }
+
+    /* Footer */
+    .footer {
+      background-color: #00000A;
+      padding: 1rem 0;
+    }
+    .bottom-nav {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+    }
+    .nav-item {
+      text-align: center;
+      cursor: pointer;
+    }
+    .nav-item a {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-decoration: none;
+      color: #fff;
+    }
+    .nav-item a:hover {
+      color: #ccc; 
+    }
+    .nav-item .image {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 48px; 
+      height: 48px;
+      margin-bottom: 0.5rem; 
+      overflow: hidden;
+      border-radius: 50%; 
+      background-color: #201F28;
+    }
+    .nav-item .image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .nav-item span {
+      font-size: 0.9rem;
+      font-weight: 400;
+      margin-top: 0.2rem;
+    }
+
+    /* ============================
+       Modales — rediseño FOCUS
+       ============================ */
+    .modal-overlay, .modal-overlay-minutes, .modal-overlay-profile {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: rgba(0,0,0,0.65);
+      backdrop-filter: blur(3px);
+      z-index: 999;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+    .modal-overlay.open, .modal-overlay-minutes.open, .modal-overlay-profile.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal, .modal-minutes, .modal-profile {
+      position: relative;
+      background: linear-gradient(180deg, #2F2E37, #100F19);
+      padding: 2rem 1.75rem 1.75rem;
+      border-radius: 20px;
+      max-width: 90%;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.9rem;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.08);
+      transform: scale(0.9) translateY(8px);
+      transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .modal-overlay.open .modal,
+    .modal-overlay-minutes.open .modal-minutes,
+    .modal-overlay-profile.open .modal-profile {
+      transform: scale(1) translateY(0);
+    }
+
+    .modal { width: 300px; }
+    .modal-minutes { width: 300px; }
+    .modal-profile { width: 320px; align-items: stretch; }
+
+    .modal-icon {
+      font-size: 2.2rem;
+      line-height: 1;
+      margin-bottom: -0.2rem;
+    }
+
+    .modal h3, .modal-minutes h3, .modal-profile h3 {
+      font-weight: 600;
+      font-size: 1.15rem;
+      text-align: center;
+      line-height: 1.4;
+    }
+    .modal-profile h3 { text-align: left; margin-bottom: 0.2rem; }
+
+    /* Botón de cerrar: círculo discreto en la esquina */
+    .modal .close-btn, 
+    .modal-minutes .close-minutes-btn,
+    .modal-profile .close-profile-btn {
+      position: absolute;
+      top: 0.75rem;
+      right: 0.75rem;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: rgba(255,255,255,0.08);
+      color: #ccc;
+      font-size: 0.85rem;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: background-color 0.2s, color 0.2s;
+    }
+    .modal .close-btn:hover, 
+    .modal-minutes .close-minutes-btn:hover,
+    .modal-profile .close-profile-btn:hover {
+      background-color: rgba(255,255,255,0.18);
+      color: #fff;
+    }
+
+    /* Toggle Yes/No */
+    .toggle-group {
+      display: flex;
+      gap: 0.6rem;
+      width: 100%;
+    }
+    .toggle-btn {
+      flex: 1;
+      padding: 0.7rem 0;
+      background-color: #201F28;
+      border: 2px solid #2F2E37;
+      color: #ccc;
+      font-weight: 600;
+      font-size: 0.95rem;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .toggle-btn:hover { border-color: #6e6b7b; }
+    .toggle-btn.selected {
+      background-color: #F5F5F7;
+      border-color: #F5F5F7;
+      color: #100F19;
+    }
+    .toggle-btn.selected.no-style {
+      background-color: #3F3D46;
+      border-color: #55525f;
+      color: #fff;
+    }
+
+    /* Chips de minutos rápidos */
+    .chip-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: center;
+      width: 100%;
+    }
+    .chip {
+      padding: 0.4rem 0.9rem;
+      background-color: #201F28;
+      border: 1.5px solid #2F2E37;
+      color: #ddd;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .chip:hover { border-color: #6e6b7b; }
+    .chip.selected {
+      background-color: #F5F5F7;
+      border-color: #F5F5F7;
+      color: #100F19;
+    }
+
+    .minutes-input-wrap {
+      position: relative;
+      width: 100%;
+    }
+    .minutes-input-wrap input[type="number"] {
+      width: 100%;
+      padding: 0.7rem 3rem 0.7rem 1rem;
+      background-color: #100F19;
+      color: #fff;
+      border: 2px solid #2F2E37;
+      border-radius: 12px;
+      outline: none;
+      font-size: 1.6rem;
+      font-weight: 700;
+      text-align: center;
+      transition: border-color 0.2s;
+      -moz-appearance: textfield;
+    }
+    .minutes-input-wrap input[type="number"]:focus {
+      border-color: #F5F5F7;
+    }
+    .minutes-unit {
+      position: absolute;
+      right: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #888;
+      font-size: 0.85rem;
+      font-weight: 600;
+      pointer-events: none;
+    }
+
+    /* Botones, selects, inputs en modals */
+    .modal button, .modal-minutes button, .modal-profile button {
+      background-color: #F5F5F7;
+      border: none;
+      color: #100F19;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      font-size: 0.85rem;
+      border-radius: 12px;
+      padding: 0.75rem 1rem;
+      cursor: pointer;
+      transition: background-color 0.2s, transform 0.15s;
+      width: 100%;
+    }
+    .modal button:hover, .modal-minutes button:hover, .modal-profile button:hover {
+      background-color: #E3E3E8;
+    }
+    .modal button:active, .modal-minutes button:active, .modal-profile button:active {
+      transform: scale(0.97);
+    }
+
+    .modal-profile input[type="text"], 
+    .modal-profile textarea,
+    .modal-profile input[type="file"] {
+      width: 100%;
+      padding: 0.6rem 0.8rem;
+      background-color: #100F19;
+      color: #fff;
+      border: 2px solid #2F2E37;
+      border-radius: 10px;
+      outline: none;
+      font-size: 0.95rem;
+      font-family: inherit;
+      transition: border-color 0.2s;
+    }
+    .modal-profile input[type="text"]:focus,
+    .modal-profile textarea:focus {
+      border-color: #F5F5F7;
+    }
+    .modal-profile label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #999;
+      margin-bottom: -0.4rem;
+      margin-top: 0.3rem;
+    }
+
+    .avatar-preview {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      align-self: center;
+      background-color: #333;
+      background-size: cover;
+      background-position: center;
+      border: 2px solid #F5F5F7;
+      margin-bottom: 0.2rem;
+    }
+
+    /* ============================
+       Toast — sustituye a alert()
+       ============================ */
+    .focus-toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translate(-50%, 16px);
+      background-color: #201F28;
+      color: #F5F5F7;
+      padding: 0.8rem 1.4rem;
+      border-radius: 14px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-align: center;
+      max-width: 85%;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.07);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      z-index: 1200;
+    }
+    .focus-toast.show {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
+    /* ============================
+       Rodillo numérico (efecto slot machine)
+       ============================ */
+    .reel-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      background-color: rgba(0,0,0,0.78);
+      backdrop-filter: blur(6px);
+      z-index: 1100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .reel-overlay.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .reel-label {
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #999;
+      text-align: center;
+      max-width: 80%;
+    }
+    .reel-container {
+      display: flex;
+      gap: 5px;
+    }
+    .reel-digit {
+      width: 48px;
+      height: 68px;
+      overflow: hidden;
+      position: relative;
+      background-color: #201F28;
+      border-radius: 12px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.07);
+    }
+    .reel-strip {
+      display: flex;
+      flex-direction: column;
+      transition: transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .reel-strip span {
+      height: 68px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.1rem;
+      font-weight: 700;
+      color: #F5F5F7;
+      font-variant-numeric: tabular-nums;
+    }
+    .reel-suffix {
+      font-size: 1rem;
+      color: #888;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Encabezado -->
+  <header class="header">
+    <h1>
+      <a href="index.html" style="text-decoration: none; color: #fff;">Focus.</a>
+    </h1>
+    <div class="page-tagline">Your progress, 1% at a time</div>
+  </header>
+
+  <!-- Sección: Barra de progreso anual -->
+  <section class="year-progress-section">
+    <h2>Year progress bar.</h2>
+    <div class="progress-container">
+      <div class="progress-bar" id="yearProgressBar"></div>
+    </div>
+    <p id="yearProgressLabel">
+      You have improved <span id="yearProgressValue">-</span>% and you know that the work is not finished.
+    </p>
+  </section>
+
+  <!-- Sección: Progresión por categorías -->
+  <section class="categories-section">
+    <h2>Progression by categories.</h2>
+    <div class="categories-grid">
+
+      <!-- Leer (1%/20 min) -->
+      <div class="category-card" data-cat="read">
+        <div class="category-icon">📖</div>
+        <div class="category-stat"><span id="readValue">0</span><span class="unit">%</span></div>
+        <div class="category-label">Reading</div>
+        <div class="progress-container small">
+          <div class="progress-bar" id="readProgressBar"></div>
+        </div>
+      </div>
+
+      <!-- Entrenar (1%/60 min) -->
+      <div class="category-card" data-cat="trained">
+        <div class="category-icon">🏋️</div>
+        <div class="category-stat"><span id="trainedValue">0</span><span class="unit">%</span></div>
+        <div class="category-label">Training</div>
+        <div class="progress-container small">
+          <div class="progress-bar" id="trainedProgressBar"></div>
+        </div>
+      </div>
+
+      <!-- Meditar (1%/10 min) -->
+      <div class="category-card" data-cat="meditated">
+        <div class="category-icon">🧘</div>
+        <div class="category-stat"><span id="meditatedValue">0</span><span class="unit">%</span></div>
+        <div class="category-label">Meditation</div>
+        <div class="progress-container small">
+          <div class="progress-bar" id="meditatedProgressBar"></div>
+        </div>
+      </div>
+
+      <!-- Trabajar (1%/60 min) -->
+      <div class="category-card" data-cat="worked">
+        <div class="category-icon">💼</div>
+        <div class="category-stat"><span id="workedValue">0</span><span class="unit">%</span></div>
+        <div class="category-label">Work</div>
+        <div class="progress-container small">
+          <div class="progress-bar" id="workedProgressBar"></div>
+        </div>
+      </div>
+
+      <!-- Rezar (Yes/No) -->
+      <div class="category-card" data-cat="prayed">
+        <div class="category-icon">🙏</div>
+        <div class="category-stat"><span id="prayedValue">0</span><span class="unit">%</span></div>
+        <div class="category-label">Prayer</div>
+        <div class="progress-container small">
+          <div class="progress-bar" id="prayedProgressBar"></div>
+        </div>
+      </div>
+
+      <!-- Dieta (Yes/No) -->
+      <div class="category-card" data-cat="diet">
+        <div class="category-icon">🥗</div>
+        <div class="category-stat"><span id="dietValue">0</span><span class="unit">%</span></div>
+        <div class="category-label">Diet</div>
+        <div class="progress-container small">
+          <div class="progress-bar" id="dietProgressBar"></div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Sección: Botones y opciones -->
+  <section class="next-actions-section">
+    <h2>The show must go on so...</h2>
+    
+    <!-- Botón "Reset progress bars" -->
+    <button class="btn action-btn" id="resetBtn">Reset progress bars</button>
+
+    <!-- Botón "Upload profile information" -->
+    <button class="btn action-btn" id="uploadProfileBtn">Upload profile information</button>
+
+    <a href="books.html" class="btn action-btn" style="display:block; text-decoration:none; box-sizing:border-box;">📚 Book recommendations</a>
+
+    <a href="legacy.html" class="btn action-btn" style="display:block; text-decoration:none; box-sizing:border-box;">🏛️ Legacy.</a>
+
+    <button class="btn action-btn" id="logoutBtn">Log out</button>
+    
+    <!-- Icono de configuración (decorativo) -->
+    <div class="settings-icon">
+      <div class="gear"></div>
+    </div>
+  </section>
+
+  <!-- Footer con menú de navegación inferior -->
+  <footer class="footer">
+    <nav class="bottom-nav">
+      <div class="nav-item">
+        <a href="memories.html">
+          <div class="image">
+            <img src="memories.webp" alt="Memories">
+          </div>
+          <span>Memories.</span>
+        </a>
+      </div>
+      <div class="nav-item">
+        <a href="socialclub.html">
+            <div class="image">
+              <img src="person.png" alt="socialclub">
+            </div>
+            <span>Socialclub.</span>
+          </a>
+      </div>
+      <div class="nav-item">
+        <a href="communities.html">
+            <div class="image">
+              <img src="communities.png" alt="communities">
+            </div>
+            <span>Communities.</span>
+          </a>
+      </div>
+    </nav>
+  </footer>
+
+  <!-- Modal: Yes/No (prayed, diet) -->
+  <div class="modal-overlay" id="yesNoModal">
+    <div class="modal">
+      <button class="close-btn" id="closeYesNoModal">✕</button>
+      <span class="modal-icon" id="yesNoModalIcon">🙏</span>
+      <h3 id="yesNoModalTitle">Have you followed your diet today?</h3>
+      <div class="toggle-group" id="yesNoToggleGroup">
+        <button type="button" class="toggle-btn" data-value="Yes">Yes</button>
+        <button type="button" class="toggle-btn no-style" data-value="No">No</button>
+      </div>
+      <button id="saveYesNoBtn">Save</button>
+    </div>
+  </div>
+
+  <!-- Modal: minutos para las demás categorías -->
+  <div class="modal-overlay-minutes" id="minutesModal">
+    <div class="modal-minutes">
+      <button class="close-minutes-btn" id="closeMinutesModal">✕</button>
+      <span class="modal-icon" id="minutesModalIcon">📖</span>
+      <h3 id="minutesModalTitle">How many minutes did you spend?</h3>
+      <div class="chip-group" id="minutesChipGroup">
+        <button type="button" class="chip" data-min="5">5</button>
+        <button type="button" class="chip" data-min="10">10</button>
+        <button type="button" class="chip" data-min="15">15</button>
+        <button type="button" class="chip" data-min="30">30</button>
+        <button type="button" class="chip" data-min="60">60</button>
+      </div>
+      <div class="minutes-input-wrap">
+        <input type="number" min="0" id="minutesInput" placeholder="0" />
+        <span class="minutes-unit">min</span>
+      </div>
+      <button id="saveMinutesBtn">Save</button>
+    </div>
+  </div>
+
+  <!-- Modal: Profile Info -->
+  <div class="modal-overlay-profile" id="profileModal">
+    <div class="modal-profile">
+      <button class="close-profile-btn" id="closeProfileModal">✕</button>
+      <h3>Upload Profile Information</h3>
+
+      <div class="avatar-preview" id="avatarPreview"></div>
+
+      <label for="realName">Real Name</label>
+      <input type="text" id="realName" placeholder="John Doe">
+
+      <label for="userName">Username</label>
+      <input type="text" id="userName" placeholder="johndoe123">
+
+      <label for="description">Description</label>
+      <textarea id="description" rows="3" placeholder="Tell us about yourself..."></textarea>
+
+      <label for="profilePic">Profile Picture</label>
+      <input type="file" id="profilePic" accept="image/*">
+
+      <button id="saveProfileBtn">Save</button>
+    </div>
+  </div>
+
+  <!-- Toast de notificaciones -->
+  <div class="focus-toast" id="focusToast"></div>
+
+  <!-- Overlay del rodillo numérico (efecto slot machine) -->
+  <div class="reel-overlay" id="reelOverlay">
+    <span class="reel-label" id="reelLabel"></span>
+    <div class="reel-container" id="reelContainer"></div>
+    <span class="reel-suffix" id="reelSuffix"></span>
+  </div>
+
+  <script type="module">
+    import { requireAuth, loadUserDoc, saveUserDoc, logout, resizeImageFile } from "./firebase-init.js";
+
+    // Esperamos a saber quién ha iniciado sesión (si no hay nadie, nos manda a login.html)
+    const user = await requireAuth();
+    const uid = user.uid;
+
+    // Cargamos los datos guardados de este usuario en Firestore
+    const savedData = await loadUserDoc(uid);
+
+    // timeSpent para cada cat
+    let timeSpent = savedData.timeSpent || {
+      read: 0,
+      trained: 0,
+      meditated: 0,
+      worked: 0,
+      prayedYesCount: 0,
+      dietYesCount: 0,
+      readSessions: 0,
+      trainedSessions: 0,
+      meditatedSessions: 0,
+      workedSessions: 0
+    };
+    // Compatibilidad con cuentas creadas antes de añadir el conteo de sesiones
+    ["readSessions", "trainedSessions", "meditatedSessions", "workedSessions"].forEach(k => {
+      if (typeof timeSpent[k] !== "number") timeSpent[k] = 0;
+    });
+
+    // Profile info
+    let profileInfo = savedData.profileInfo || {
+      realName: "",
+      userName: "",
+      description: "",
+      profilePic: ""
+    };
+
+    document.getElementById("logoutBtn").addEventListener("click", logout);
+
+    // Iconos por categoría, usados en los modales
+    const CATEGORY_ICONS = {
+      read: "📖",
+      trained: "🏋️",
+      meditated: "🧘",
+      worked: "💼",
+      prayed: "🙏",
+      diet: "🥗"
+    };
+
+    // Animación tipo "cuentakilómetros": sube rápido del valor actual al nuevo
+    function animateNumber(el, from, to, duration = 700) {
+      if (!el) return;
+      from = Number(from) || 0;
+      to = Number(to) || 0;
+      if (from === to) { el.textContent = to; return; }
+
+      const start = performance.now();
+      function tick(now) {
+        const progress = Math.min((now - start) / duration, 1);
+        // easeOutExpo: arranca muy rápido y frena al final, como un odómetro
+        const eased = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+        const current = Math.round(from + (to - from) * eased);
+        el.textContent = current;
+        if (progress < 1) requestAnimationFrame(tick);
+        else el.textContent = to;
+      }
+      requestAnimationFrame(tick);
+    }
+
+    /* -- Toast: sustituye a los alert() nativos -- */
+    const focusToast = document.getElementById("focusToast");
+    let toastTimer;
+    function showToast(message) {
+      focusToast.textContent = message;
+      focusToast.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => focusToast.classList.remove("show"), 2400);
+    }
+
+    /* -- Rodillo numérico tipo tragaperras (para el total de minutos) -- */
+    const reelOverlay   = document.getElementById("reelOverlay");
+    const reelLabel     = document.getElementById("reelLabel");
+    const reelContainer = document.getElementById("reelContainer");
+    const reelSuffix    = document.getElementById("reelSuffix");
+
+    function buildReelDigit(targetDigit) {
+      const digitEl = document.createElement("div");
+      digitEl.className = "reel-digit";
+      const strip = document.createElement("div");
+      strip.className = "reel-strip";
+      // 3 vueltas de 0-9 para que el rodillo gire varias veces antes de frenar
+      for (let cycle = 0; cycle < 3; cycle++) {
+        for (let d = 0; d <= 9; d++) {
+          const span = document.createElement("span");
+          span.textContent = d;
+          strip.appendChild(span);
+        }
+      }
+      digitEl.appendChild(strip);
+      return { digitEl, strip, targetDigit };
+    }
+
+    function showMinutesReel(catKey, toTotal) {
+      const digitsStr = String(toTotal).padStart(2, "0");
+      reelContainer.innerHTML = "";
+      const strips = [];
+
+      [...digitsStr].forEach((ch) => {
+        const { digitEl, strip, targetDigit } = buildReelDigit(parseInt(ch, 10));
+        reelContainer.appendChild(digitEl);
+        strips.push({ strip, targetDigit });
+      });
+
+      reelLabel.textContent = `Total minutes on ${catKey} this year`;
+      reelSuffix.textContent = "min";
+      reelOverlay.classList.add("show");
+
+      // Reseteamos posición antes de animar (sin transición) y forzamos reflow
+      strips.forEach(({ strip }) => {
+        strip.style.transitionDuration = "0s";
+        strip.style.transform = "translateY(0)";
+      });
+      // eslint-disable-next-line no-unused-expressions
+      reelContainer.offsetHeight;
+
+      let maxDuration = 0;
+      strips.forEach(({ strip, targetDigit }, i) => {
+        const duration = 900 + i * 220;
+        const delay = i * 90;
+        maxDuration = Math.max(maxDuration, duration + delay);
+        strip.style.transitionDuration = `${duration}ms`;
+        strip.style.transitionDelay = `${delay}ms`;
+        const landIndex = 20 + targetDigit; // aterriza en la 3ª vuelta
+        strip.style.transform = `translateY(-${landIndex * 68}px)`;
+      });
+
+      // Tras la animación + una pausa para leer el número, ocultamos el rodillo
+      setTimeout(() => {
+        reelOverlay.classList.remove("show");
+      }, maxDuration + 1300);
+    }
+
+    // Cálculo % en base a la catKey
+    function computeProgress(catKey) {
+      switch(catKey) {
+        case "read":
+          return Math.floor(timeSpent.read / 20);   // 1% / 20 min
+        case "trained":
+          return Math.floor(timeSpent.trained / 60);// 1% / 60 min
+        case "meditated":
+          return Math.floor(timeSpent.meditated / 10);// 1% / 10 min
+        case "worked":
+          return Math.floor(timeSpent.worked / 60);
+        case "prayed":
+          return timeSpent.prayedYesCount;          
+        case "diet":
+          return timeSpent.dietYesCount;           
+      }
+      return 0;
+    }
+
+    // Actualiza la barra y el texto de una categoría
+    function updateProgress(catKey) {
+      const val = computeProgress(catKey);
+      const finalVal = val > 400 ? 400 : val;
+
+      // Actualizar la barra (la transición CSS ya la anima)
+      const barElem = document.getElementById(catKey + "ProgressBar");
+      if (barElem) barElem.style.width = finalVal + "%";
+      
+      // Actualizar el texto con efecto de conteo
+      const labelElem = document.getElementById(catKey + "Value");
+      if (labelElem) {
+        const currentVal = parseInt(labelElem.textContent, 10) || 0;
+        animateNumber(labelElem, currentVal, finalVal);
+      }
+    }
+
+    // Calculamos la media de los 6 porcentajes para la barra principal
+    function updateYearBar() {
+      const cats = ["read","trained","meditated","worked","prayed","diet"];
+      let sum = 0;
+      cats.forEach(c => sum += computeProgress(c));
+      const avg = Math.floor(sum / cats.length);
+      const finalAvg = avg > 400 ? 400 : avg;
+      
+      const yearBar = document.getElementById("yearProgressBar");
+      const yearVal = document.getElementById("yearProgressValue");
+      if (yearBar) yearBar.style.width = finalAvg + "%";
+      if (yearVal) {
+        const currentVal = parseInt(yearVal.textContent, 10) || 0;
+        animateNumber(yearVal, currentVal, finalAvg);
+      }
+    }
+
+    // Recalcula una categoría y después la barra principal
+    function recalcAll(catKey) {
+      updateProgress(catKey);
+      updateYearBar();
+    }
+
+    /* -- Modales prayed/diet -- */
+    const yesNoModal       = document.getElementById("yesNoModal");
+    const closeYesNoModal  = document.getElementById("closeYesNoModal");
+    const yesNoModalTitle  = document.getElementById("yesNoModalTitle");
+    const yesNoModalIcon   = document.getElementById("yesNoModalIcon");
+    const yesNoToggleGroup = document.getElementById("yesNoToggleGroup");
+    const saveYesNoBtn     = document.getElementById("saveYesNoBtn");
+    let yesNoChoice = "Yes";
+    let yesNoCategory = null;
+
+    function openYesNoModal(catKey) {
+      yesNoCategory = catKey;
+      yesNoChoice = "Yes";
+      yesNoModalIcon.textContent = CATEGORY_ICONS[catKey] || "✅";
+      yesNoModalTitle.textContent = (catKey === "prayed")
+        ? "Have you prayed today?"
+        : "Have you followed your diet today?";
+
+      yesNoToggleGroup.querySelectorAll(".toggle-btn").forEach(btn => {
+        btn.classList.toggle("selected", btn.dataset.value === "Yes");
+      });
+
+      yesNoModal.classList.add("open");
+    }
+    function closeYesNo() {
+      yesNoModal.classList.remove("open");
+    }
+    closeYesNoModal.addEventListener("click", closeYesNo);
+
+    yesNoToggleGroup.querySelectorAll(".toggle-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        yesNoChoice = btn.dataset.value;
+        yesNoToggleGroup.querySelectorAll(".toggle-btn").forEach(b => {
+          b.classList.toggle("selected", b === btn);
+        });
+      });
+    });
+
+    saveYesNoBtn.addEventListener("click", () => {
+      const catKey = yesNoCategory;
+      if (yesNoChoice === "Yes") {
+        if (catKey === "prayed") {
+          timeSpent.prayedYesCount++;
+          showToast("Nice! +1% in prayed progress!");
+        } else {
+          timeSpent.dietYesCount++;
+          showToast("Great job! +1% in diet progress!");
+        }
+      } else {
+        showToast("No increment this time!");
+      }
+      saveUserDoc(uid, { timeSpent });
+      recalcAll(catKey);
+      closeYesNo();
+    });
+
+    /* -- Modal Minutos -- */
+    const minutesModal      = document.getElementById("minutesModal");
+    const closeMinutesModal = document.getElementById("closeMinutesModal");
+    const minutesModalTitle = document.getElementById("minutesModalTitle");
+    const minutesModalIcon  = document.getElementById("minutesModalIcon");
+    const minutesChipGroup  = document.getElementById("minutesChipGroup");
+    const minutesInput      = document.getElementById("minutesInput");
+    const saveMinutesBtn    = document.getElementById("saveMinutesBtn");
+
+    function openMinutesModal(catKey) {
+      minutesModalIcon.textContent = CATEGORY_ICONS[catKey] || "⏱️";
+      minutesModalTitle.textContent = `How many minutes did you spend on ${catKey} today?`;
+      minutesInput.value = "";
+      minutesInput.dataset.category = catKey;
+      minutesChipGroup.querySelectorAll(".chip").forEach(c => c.classList.remove("selected"));
+
+      minutesModal.classList.add("open");
+      setTimeout(() => minutesInput.focus(), 200);
+    }
+    function closeModalMinutes() {
+      minutesModal.classList.remove("open");
+    }
+    closeMinutesModal.addEventListener("click", closeModalMinutes);
+
+    minutesChipGroup.querySelectorAll(".chip").forEach(chip => {
+      chip.addEventListener("click", () => {
+        minutesInput.value = chip.dataset.min;
+        minutesChipGroup.querySelectorAll(".chip").forEach(c => c.classList.remove("selected"));
+        chip.classList.add("selected");
+      });
+    });
+    // Si el usuario escribe un valor manual, quitamos la selección de chips
+    minutesInput.addEventListener("input", () => {
+      const matchingChip = [...minutesChipGroup.querySelectorAll(".chip")]
+        .find(c => c.dataset.min === minutesInput.value);
+      minutesChipGroup.querySelectorAll(".chip").forEach(c => {
+        c.classList.toggle("selected", c === matchingChip);
+      });
+    });
+
+    saveMinutesBtn.addEventListener("click", () => {
+      const catKey = minutesInput.dataset.category;
+      const val = parseInt(minutesInput.value);
+      if (!isNaN(val) && val > 0) {
+        timeSpent[catKey] += val;
+        timeSpent[catKey + "Sessions"] = (timeSpent[catKey + "Sessions"] || 0) + 1;
+        saveUserDoc(uid, { timeSpent });
+        closeModalMinutes();
+        showMinutesReel(catKey, timeSpent[catKey]);
+        // Las barras se recalculan ya (quedan ocultas detrás del overlay del rodillo)
+        recalcAll(catKey);
+      } else {
+        closeModalMinutes();
+      }
+    });
+
+    /* -- Botón RESET -- */
+    const resetBtn = document.getElementById("resetBtn");
+    resetBtn.addEventListener("click", () => {
+      // Todos a 0
+      timeSpent.read          = 0;
+      timeSpent.trained       = 0;
+      timeSpent.meditated     = 0;
+      timeSpent.worked        = 0;
+      timeSpent.prayedYesCount= 0;
+      timeSpent.dietYesCount  = 0;
+
+      saveUserDoc(uid, { timeSpent });
+
+      ["read","trained","meditated","worked","prayed","diet"].forEach(cat => {
+        updateProgress(cat);
+      });
+      updateYearBar();
+
+      showToast("All progress bars have been reset to 0!");
+    });
+
+    /* -- Modal Profile -- */
+    const uploadProfileBtn    = document.getElementById("uploadProfileBtn");
+    const profileModal        = document.getElementById("profileModal");
+    const closeProfileModalBtn= document.getElementById("closeProfileModal");
+    const realNameInput       = document.getElementById("realName");
+    const userNameInput       = document.getElementById("userName");
+    const descriptionInput    = document.getElementById("description");
+    const profilePicInput     = document.getElementById("profilePic");
+    const saveProfileBtn      = document.getElementById("saveProfileBtn");
+    const avatarPreview       = document.getElementById("avatarPreview");
+
+    function setAvatarPreview(src) {
+      avatarPreview.style.backgroundImage = src ? `url(${src})` : "none";
+    }
+
+    uploadProfileBtn.addEventListener("click", () => {
+      realNameInput.value    = profileInfo.realName || "";
+      userNameInput.value    = profileInfo.userName || "";
+      descriptionInput.value = profileInfo.description || "";
+      profilePicInput.value  = "";
+      delete profilePicInput.dataset.resized;
+      setAvatarPreview(profileInfo.profilePic);
+      profileModal.classList.add("open");
+    });
+
+    closeProfileModalBtn.addEventListener("click", () => {
+      profileModal.classList.remove("open");
+    });
+
+    profilePicInput.addEventListener("change", async () => {
+      const file = profilePicInput.files[0];
+      if (!file) return;
+      const resized = await resizeImageFile(file, 400, 0.8);
+      profilePicInput.dataset.resized = resized;
+      setAvatarPreview(resized);
+    });
+
+    saveProfileBtn.addEventListener("click", async () => {
+      profileInfo.realName    = realNameInput.value.trim();
+      profileInfo.userName    = userNameInput.value.trim();
+      profileInfo.description = descriptionInput.value.trim();
+
+      if (profilePicInput.dataset.resized) {
+        profileInfo.profilePic = profilePicInput.dataset.resized;
+      }
+      persistProfile();
+    });
+
+    function persistProfile() {
+      saveUserDoc(uid, { profileInfo });
+      showToast("Profile information saved!");
+      profileModal.classList.remove("open");
+    }
+
+    /* -- Inicializamos la página con los datos ya cargados de Firestore -- */
+    updateYearBar();
+    ["read","trained","meditated","worked","prayed","diet"].forEach(cat => {
+      updateProgress(cat);
+    });
+
+    document.querySelectorAll(".category-card").forEach(card => {
+      card.addEventListener("click", () => {
+        const catKey = card.getAttribute("data-cat");
+        if (!catKey) return;
+
+        if (catKey === "prayed" || catKey === "diet") {
+          openYesNoModal(catKey);
+        } else {
+          openMinutesModal(catKey);
+        }
+      });
+    });
+
+    /* -- Transición dinámica entre páginas -- */
+    document.querySelectorAll('.nav-item a, .header h1 a').forEach(link => {
+      link.addEventListener('click', (e) => {
+        const href = link.getAttribute('href');
+        if (!href || href.startsWith('#')) return;
+        e.preventDefault();
+        document.body.style.transition = 'opacity 0.22s ease, transform 0.22s ease';
+        document.body.style.opacity = '0';
+        document.body.style.transform = 'translateY(-6px)';
+        setTimeout(() => { window.location.href = href; }, 200);
+      });
+    });
+  </script>
+</body>
+</html>

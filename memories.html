@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Memories - Instant Pictures</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+    rel="stylesheet"
+  >
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #100F19;
+      color: #fff;
+      opacity: 0;
+      animation: pageFadeIn 0.4s ease forwards;
+    }
+    @keyframes pageFadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .header {
+      background-color: #00000A;
+      text-align: center;
+      padding: 1.75rem 1rem 1.1rem;
+    }
+    .header h1 { font-size: 2.4rem; font-weight: 700; }
+    .header h1 a { text-decoration: none; color: #fff; transition: color 0.2s; }
+    .header h1 a:hover { color: #ccc; }
+    .header .page-tagline { font-size: 0.85rem; color: #777; margin-top: 0.4rem; letter-spacing: 0.02em; }
+
+    /* Sección de captura */
+    .main-section { text-align: center; padding: 1.75rem 1rem 1.25rem; }
+
+    .instant-pictures {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: linear-gradient(180deg, #201F28, #100F19);
+      border-radius: 20px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.06);
+      width: 90%;
+      max-width: 340px;
+      padding: 1.25rem 1rem;
+      margin: 0 auto 1.25rem;
+      overflow: hidden;
+    }
+
+    .flash-overlay {
+      position: absolute;
+      inset: 0;
+      background-color: #fff;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 5;
+      border-radius: 20px;
+      transition: opacity 0.08s ease;
+    }
+    .flash-overlay.flash { opacity: 0.9; transition: opacity 0.03s ease; }
+
+    .camera-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      width: 100%;
+    }
+
+    /* Formato retrato 3:4, como una app de cámara real en móvil */
+    .video-frame {
+      position: relative;
+      width: 100%;
+      max-width: 260px;
+      aspect-ratio: 3 / 4;
+      border-radius: 16px;
+      overflow: hidden;
+      background-color: #000;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.08);
+    }
+    #video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .flip-camera-btn {
+      position: absolute;
+      top: 8px; right: 8px;
+      width: 32px; height: 32px;
+      background-color: rgba(0,0,0,0.5);
+      border: none;
+      border-radius: 50%;
+      color: #fff;
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      z-index: 2;
+      transition: background-color 0.2s;
+    }
+    .flip-camera-btn:hover { background-color: rgba(0,0,0,0.7); }
+
+    .camera-fallback {
+      display: none;
+      width: 100%; height: 100%;
+      align-items: center; justify-content: center;
+      color: #777; font-size: 0.85rem; text-align: center; padding: 1rem;
+    }
+    #canvas { display: none; }
+
+    .camera-buttons button {
+      width: 62px; height: 62px;
+      background-color: #F5F5F7;
+      border: 4px solid #3F3D46;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: transform 0.15s ease, background-color 0.2s, border-color 0.2s, opacity 0.2s;
+    }
+    .camera-buttons button:hover { transform: scale(1.06); border-color: #55525f; }
+    .camera-buttons button:active { transform: scale(0.9); background-color: #d9d8e0; }
+    .camera-buttons button:disabled {
+      opacity: 0.35;
+      cursor: default;
+      transform: none;
+    }
+
+    .capture-status {
+      font-size: 0.8rem;
+      color: #999;
+      max-width: 260px;
+      text-align: center;
+    }
+
+    /* Calendario */
+    .calendar-section { padding: 0.5rem 1rem 3rem; max-width: 460px; margin: 0 auto; }
+    .calendar-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+    .calendar-header button {
+      width: 34px; height: 34px;
+      background-color: #201F28;
+      color: #F5F5F7;
+      border: none;
+      border-radius: 50%;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.2s, opacity 0.2s;
+    }
+    .calendar-header button:hover:not(:disabled) { background-color: #2F2E37; }
+    .calendar-header button:disabled { opacity: 0.3; cursor: default; }
+    .calendar-header h3 { font-size: 1.05rem; font-weight: 700; }
+
+    .calendar-weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+    .calendar-weekdays span {
+      font-size: 0.62rem;
+      color: #666;
+      text-align: center;
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+    }
+
+    .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+    .calendar-day {
+      position: relative;
+      aspect-ratio: 3 / 4;
+      border-radius: 8px;
+      background-color: #171620;
+      overflow: hidden;
+      display: flex;
+      align-items: flex-end;
+      transition: transform 0.15s ease;
+    }
+    .calendar-day.empty-slot { background: transparent; }
+    .calendar-day.has-photo { cursor: pointer; }
+    .calendar-day.has-photo:hover { transform: scale(1.04); }
+    .calendar-day.has-photo img {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%; object-fit: cover;
+    }
+    .calendar-day .day-number {
+      position: relative;
+      z-index: 1;
+      font-size: 0.6rem;
+      font-weight: 700;
+      color: rgba(255,255,255,0.45);
+      padding: 3px 4px;
+    }
+    .calendar-day.has-photo .day-number {
+      color: #fff;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.85);
+    }
+    .calendar-day.today { box-shadow: 0 0 0 2px #F5F5F7; }
+    .calendar-day.just-added { animation: popIn 0.5s cubic-bezier(0.22, 1, 0.36, 1); }
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0.7); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+
+    /* Lightbox */
+    .lightbox-overlay {
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      background-color: rgba(0,0,0,0.8);
+      backdrop-filter: blur(4px);
+      z-index: 999;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+    .lightbox-overlay.open { opacity: 1; pointer-events: auto; }
+    .lightbox-card {
+      position: relative;
+      max-width: 90%; max-height: 85vh;
+      transform: scale(0.9);
+      transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .lightbox-overlay.open .lightbox-card { transform: scale(1); }
+    .lightbox-card img {
+      max-width: 100%; max-height: 85vh;
+      border-radius: 16px;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.6);
+      display: block;
+    }
+    .lightbox-date {
+      text-align: center;
+      color: #ccc;
+      font-size: 0.85rem;
+      margin-top: 0.7rem;
+      font-weight: 600;
+    }
+    .lightbox-close {
+      position: absolute; top: -14px; right: -14px;
+      width: 32px; height: 32px;
+      display: flex; align-items: center; justify-content: center;
+      background-color: #F5F5F7; color: #100F19;
+      border-radius: 50%; cursor: pointer; font-size: 0.9rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+      transition: background-color 0.2s;
+    }
+    .lightbox-close:hover { background-color: #E3E3E8; }
+
+    .focus-toast {
+      position: fixed; bottom: 30px; left: 50%; transform: translate(-50%, 16px);
+      background-color: #201F28; color: #F5F5F7;
+      padding: 0.8rem 1.4rem; border-radius: 14px;
+      font-size: 0.9rem; font-weight: 600; text-align: center; max-width: 85%;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.07);
+      opacity: 0; pointer-events: none; transition: opacity 0.3s ease, transform 0.3s ease; z-index: 1200;
+    }
+    .focus-toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+    .footer { background-color: #00000A; padding: 1rem 0; }
+    .bottom-nav { display: flex; justify-content: space-around; align-items: center; }
+    .nav-item a {
+      display: flex; flex-direction: column; align-items: center;
+      text-decoration: none; color: #fff;
+      padding: 0.3rem 0.9rem; border-radius: 12px;
+      transition: background-color 0.2s, opacity 0.2s;
+    }
+    .nav-item a:hover { opacity: 0.85; }
+    .nav-item.active a { background-color: rgba(255,255,255,0.06); }
+    .nav-item span { font-size: 0.9rem; margin-top: 0.5rem; }
+    .image {
+      width: 50px; height: 50px; margin-bottom: 0.5rem;
+      overflow: hidden; border-radius: 50%;
+      display: flex; justify-content: center; align-items: center;
+      background-color: #201F28;
+    }
+    .image img { width: 100%; height: 100%; object-fit: cover; }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <h1><a href="index.html">Focus.</a></h1>
+    <div class="page-tagline">Memories — one honest snapshot a day, all year long</div>
+  </header>
+
+  <section class="main-section">
+    <div class="instant-pictures">
+      <div class="flash-overlay" id="flashOverlay"></div>
+      <div class="camera-container">
+        <div class="video-frame">
+          <video id="video" autoplay playsinline></video>
+          <button class="flip-camera-btn" id="flipCameraBtn" aria-label="Flip camera">🔄</button>
+          <div class="camera-fallback" id="cameraFallback">No se pudo acceder a la cámara.<br>Revisa los permisos del navegador.</div>
+        </div>
+        <canvas id="canvas"></canvas>
+        <div class="camera-buttons">
+          <button id="snap" aria-label="Take photo"></button>
+        </div>
+        <p class="capture-status" id="captureStatus"></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="calendar-section">
+    <div class="calendar-header">
+      <button id="prevMonthBtn" aria-label="Previous month">‹</button>
+      <h3 id="calendarTitle"></h3>
+      <button id="nextMonthBtn" aria-label="Next month">›</button>
+    </div>
+    <div class="calendar-weekdays">
+      <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+    </div>
+    <div class="calendar-grid" id="calendarGrid"></div>
+  </section>
+
+  <footer class="footer">
+    <nav class="bottom-nav">
+      <div class="nav-item active">
+        <a href="memories.html">
+          <div class="image"><img src="memories.webp" alt="Memories"></div>
+          <span>Memories.</span>
+        </a>
+      </div>
+      <div class="nav-item">
+        <a href="socialclub.html">
+          <div class="image"><img src="person.png" alt="Socialclub"></div>
+          <span>Socialclub.</span>
+        </a>
+      </div>
+      <div class="nav-item">
+        <a href="communities.html">
+          <div class="image"><img src="communities.png" alt="Communities"></div>
+          <span>Communities.</span>
+        </a>
+      </div>
+      <div class="nav-item">
+        <a href="legacy.html">
+          <div class="image"><span style="font-size:1.4rem;">🏛️</span></div>
+          <span>Legacy.</span>
+        </a>
+      </div>
+    </nav>
+  </footer>
+
+  <div class="lightbox-overlay" id="lightboxOverlay">
+    <div class="lightbox-card">
+      <div class="lightbox-close" id="closeLightbox">✕</div>
+      <img id="lightboxImg" src="" alt="Focus memory">
+      <p class="lightbox-date" id="lightboxDate"></p>
+    </div>
+  </div>
+
+  <div class="focus-toast" id="focusToast"></div>
+
+  <script type="module">
+    import { requireAuth, setDatedItem, getItems, deleteItem } from "./firebase-init.js";
+
+    const user = await requireAuth();
+    const uid = user.uid;
+
+    const video          = document.getElementById('video');
+    const cameraFallback = document.getElementById('cameraFallback');
+    const canvas         = document.getElementById('canvas');
+    const snapButton     = document.getElementById('snap');
+    const flashOverlay   = document.getElementById('flashOverlay');
+    const captureStatus  = document.getElementById('captureStatus');
+    const flipCameraBtn  = document.getElementById('flipCameraBtn');
+    const context        = canvas.getContext('2d');
+
+    const calendarTitle  = document.getElementById('calendarTitle');
+    const calendarGrid   = document.getElementById('calendarGrid');
+    const prevMonthBtn   = document.getElementById('prevMonthBtn');
+    const nextMonthBtn   = document.getElementById('nextMonthBtn');
+
+    const lightboxOverlay = document.getElementById('lightboxOverlay');
+    const lightboxImg     = document.getElementById('lightboxImg');
+    const lightboxDate    = document.getElementById('lightboxDate');
+    const closeLightbox   = document.getElementById('closeLightbox');
+
+    const focusToast = document.getElementById('focusToast');
+    let toastTimer;
+    function showToast(message) {
+      focusToast.textContent = message;
+      focusToast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => focusToast.classList.remove('show'), 2400);
+    }
+
+    function pad(n) { return String(n).padStart(2, '0'); }
+    function formatDateKey(d) { return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; }
+
+    const today = new Date();
+    const todayKey = formatDateKey(today);
+    let currentMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+
+    // Cargamos todas las fotos guardadas (una por día) y las indexamos por fecha
+    const rawPhotos = await getItems(uid, "photos", 400);
+    const photosByDate = {};
+    rawPhotos.forEach(p => { if (p.dateKey) photosByDate[p.dateKey] = p; });
+
+    function updateCaptureAvailability() {
+      if (photosByDate[todayKey]) {
+        snapButton.disabled = true;
+        captureStatus.textContent = "You've already captured today's moment — come back tomorrow!";
+      } else {
+        snapButton.disabled = false;
+        captureStatus.textContent = "One honest photo a day. Make it count.";
+      }
+    }
+    updateCaptureAvailability();
+
+    function renderCalendar() {
+      const year = currentMonth.getFullYear();
+      const month = currentMonth.getMonth();
+      calendarTitle.textContent = currentMonth.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+
+      // No dejamos navegar a meses futuros
+      const isCurrentMonth = year === today.getFullYear() && month === today.getMonth();
+      nextMonthBtn.disabled = isCurrentMonth;
+
+      const firstDay = new Date(year, month, 1);
+      const startWeekday = (firstDay.getDay() + 6) % 7; // Lunes = 0
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+      let html = '';
+      for (let i = 0; i < startWeekday; i++) {
+        html += `<div class="calendar-day empty-slot"></div>`;
+      }
+      for (let d = 1; d <= daysInMonth; d++) {
+        const dateKey = formatDateKey(new Date(year, month, d));
+        const photo = photosByDate[dateKey];
+        const isToday = dateKey === todayKey;
+        html += `
+          <div class="calendar-day ${photo ? 'has-photo' : ''} ${isToday ? 'today' : ''}" data-date-key="${dateKey}">
+            ${photo ? `<img src="${photo.image}" alt="Focus memory ${dateKey}">` : ''}
+            <span class="day-number">${d}</span>
+          </div>`;
+      }
+      calendarGrid.innerHTML = html;
+    }
+    renderCalendar();
+
+    calendarGrid.addEventListener('click', (e) => {
+      const cell = e.target.closest('.calendar-day.has-photo');
+      if (!cell) return;
+      const dateKey = cell.dataset.dateKey;
+      const photo = photosByDate[dateKey];
+      if (!photo) return;
+      lightboxImg.src = photo.image;
+      lightboxDate.textContent = new Date(dateKey).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+      lightboxOverlay.classList.add('open');
+    });
+    closeLightbox.addEventListener('click', () => lightboxOverlay.classList.remove('open'));
+    lightboxOverlay.addEventListener('click', (e) => { if (e.target === lightboxOverlay) lightboxOverlay.classList.remove('open'); });
+
+    prevMonthBtn.addEventListener('click', () => {
+      currentMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1);
+      renderCalendar();
+    });
+    nextMonthBtn.addEventListener('click', () => {
+      if (nextMonthBtn.disabled) return;
+      currentMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1);
+      renderCalendar();
+    });
+
+    // ---- Cámara ----
+    let currentFacingMode = 'environment';
+    let currentStream = null;
+
+    async function startCamera(facingMode) {
+      if (currentStream) currentStream.getTracks().forEach(t => t.stop());
+      try {
+        currentStream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: { ideal: facingMode }, aspectRatio: { ideal: 3 / 4 } }
+        });
+        video.srcObject = currentStream;
+        video.style.display = 'block';
+        cameraFallback.style.display = 'none';
+      } catch (err) {
+        console.error(err);
+        video.style.display = 'none';
+        cameraFallback.style.display = 'flex';
+        showToast("No se pudo acceder a la cámara.");
+      }
+    }
+    startCamera(currentFacingMode);
+
+    flipCameraBtn.addEventListener('click', () => {
+      currentFacingMode = currentFacingMode === 'environment' ? 'user' : 'environment';
+      startCamera(currentFacingMode);
+    });
+
+    // Recorta el frame de vídeo a un retrato 3:4 fijo, sea cual sea la resolución
+    // nativa de la cámara del dispositivo (evita fotos deformadas en móvil).
+    function captureFrame() {
+      const vw = video.videoWidth;
+      const vh = video.videoHeight;
+      const targetRatio = 3 / 4;
+
+      let sx, sy, sw, sh;
+      if (vw / vh > targetRatio) {
+        sh = vh;
+        sw = vh * targetRatio;
+        sx = (vw - sw) / 2;
+        sy = 0;
+      } else {
+        sw = vw;
+        sh = vw / targetRatio;
+        sx = 0;
+        sy = (vh - sh) / 2;
+      }
+
+      canvas.width = 480;
+      canvas.height = Math.round(480 / targetRatio);
+      context.drawImage(video, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
+      return canvas.toDataURL('image/jpeg', 0.75);
+    }
+
+    snapButton.addEventListener('click', async () => {
+      if (!currentStream || snapButton.disabled) return;
+      if (photosByDate[todayKey]) { updateCaptureAvailability(); return; }
+
+      flashOverlay.classList.add('flash');
+      setTimeout(() => flashOverlay.classList.remove('flash'), 120);
+
+      const imgUrl = captureFrame();
+      snapButton.disabled = true;
+
+      try {
+        await setDatedItem(uid, "photos", todayKey, { image: imgUrl });
+        photosByDate[todayKey] = { image: imgUrl, dateKey: todayKey };
+
+        if (currentMonth.getFullYear() !== today.getFullYear() || currentMonth.getMonth() !== today.getMonth()) {
+          currentMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+        }
+        renderCalendar();
+        const todayCell = calendarGrid.querySelector(`[data-date-key="${todayKey}"]`);
+        if (todayCell) todayCell.classList.add('just-added');
+
+        updateCaptureAvailability();
+        showToast("Today's moment saved!");
+      } catch (err) {
+        console.error(err);
+        snapButton.disabled = false;
+        showToast("Couldn't save your photo. Try again.");
+      }
+    });
+
+    /* -- Transición dinámica entre páginas -- */
+    document.querySelectorAll('.nav-item a, .header h1 a').forEach(link => {
+      link.addEventListener('click', (e) => {
+        const href = link.getAttribute('href');
+        if (!href || href.startsWith('#')) return;
+        e.preventDefault();
+        document.body.style.transition = 'opacity 0.22s ease, transform 0.22s ease';
+        document.body.style.opacity = '0';
+        document.body.style.transform = 'translateY(-6px)';
+        setTimeout(() => { window.location.href = href; }, 200);
+      });
+    });
+  </script>
+</body>
+</html>

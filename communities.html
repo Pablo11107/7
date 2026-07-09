@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Communities - Chats</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+    rel="stylesheet"
+  >
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #100F19;
+      color: #fff;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      opacity: 0;
+      animation: pageFadeIn 0.4s ease forwards;
+    }
+    @keyframes pageFadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .header {
+      background-color: #00000A;
+      text-align: center;
+      padding: 1.75rem 1rem 1.1rem;
+      flex-shrink: 0;
+    }
+    .header h1 { font-size: 2.4rem; font-weight: 700; margin: 0; }
+    .header h1 a { text-decoration: none; color: #fff; transition: color 0.2s; }
+    .header h1 a:hover { color: #ccc; }
+    .header .page-tagline { font-size: 0.85rem; color: #777; margin-top: 0.25rem; letter-spacing: 0.02em; }
+
+    .main-container { flex: 1; display: flex; overflow: hidden; }
+
+    .sidebar {
+      width: 270px;
+      background-color: #171620;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      padding: 1.25rem 0;
+      overflow-y: auto;
+      border-right: 1px solid rgba(255,255,255,0.05);
+    }
+    .sidebar h2 {
+      font-size: 0.75rem; font-weight: 700; color: #777;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      padding: 0 1.25rem; margin-bottom: 0.75rem;
+    }
+    .chat-item {
+      display: flex; align-items: center; gap: 0.75rem;
+      padding: 0.7rem 1.25rem; cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    .chat-item:hover { background-color: #201F28; }
+    .chat-item.active { background-color: #2F2E37; }
+    .chat-item .chat-avatar {
+      width: 44px; height: 44px; border-radius: 50%;
+      background-color: #3F3D46; background-size: cover; background-position: center;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 0.9rem; color: #F5F5F7; flex-shrink: 0;
+    }
+    .chat-item-text { display: flex; flex-direction: column; overflow: hidden; flex: 1; }
+    .chat-item-text span.chat-name {
+      font-size: 0.92rem; color: #eee; font-weight: 600;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .chat-item-text span.chat-last {
+      font-size: 0.75rem; color: #777;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+
+    .sidebar-divider { height: 1px; background-color: rgba(255,255,255,0.06); margin: 0.6rem 1.25rem; }
+    .sidebar-empty { padding: 0.5rem 1.25rem; color: #666; font-size: 0.82rem; line-height: 1.4; }
+
+    .new-chat-btn {
+      margin: 0.4rem 1.25rem 0;
+      padding: 0.65rem; text-align: center;
+      background-color: #2F2E37; color: #F5F5F7;
+      border-radius: 12px; cursor: pointer;
+      font-weight: 600; font-size: 0.85rem;
+      transition: background-color 0.2s;
+    }
+    .new-chat-btn:hover { background-color: #3F3D46; }
+
+    .chat-area {
+      flex: 1; background-color: #100F19;
+      display: flex; flex-direction: column;
+      justify-content: space-between; overflow: hidden;
+    }
+
+    .chat-header {
+      background-color: #171620;
+      padding: 0.9rem 1.25rem;
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .chat-header-left { display: flex; align-items: center; gap: 0.9rem; }
+    .chat-header-left .chat-avatar-lg {
+      width: 46px; height: 46px; border-radius: 50%;
+      background-color: #3F3D46; background-size: cover; background-position: center;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; color: #F5F5F7; flex-shrink: 0;
+    }
+    .chat-header-left-text { display: flex; flex-direction: column; }
+    .chat-header-left h2 { font-size: 1.1rem; font-weight: 700; margin: 0; }
+    .chat-header-left .member-count { font-size: 0.72rem; color: #777; }
+
+    .chat-header-right { display: flex; align-items: center; gap: 0.5rem; }
+    .chat-header-right button {
+      background-color: #2F2E37; border: none; color: #F5F5F7;
+      font-weight: 600; font-size: 0.8rem; border-radius: 20px;
+      padding: 0.5rem 0.9rem; cursor: pointer; transition: background-color 0.2s;
+    }
+    .chat-header-right button:hover { background-color: #3F3D46; }
+    .chat-header-right button:disabled { opacity: 0.4; cursor: default; }
+
+    .messages { flex: 1; padding: 1.25rem; overflow-y: auto; display: flex; flex-direction: column; }
+    .empty-chat {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; color: #666; gap: 0.6rem; text-align: center;
+    }
+    .empty-chat .icon { font-size: 2.2rem; opacity: 0.5; }
+    .empty-chat p { font-size: 0.9rem; max-width: 280px; }
+
+    .message-row { display: flex; flex-direction: column; margin-bottom: 0.8rem; }
+    .message-row.mine { align-items: flex-end; }
+    .message-row.other { align-items: flex-start; }
+    .message-sender { font-size: 0.7rem; color: #777; margin-bottom: 0.2rem; padding: 0 0.3rem; }
+    .message {
+      max-width: 65%; padding: 0.7rem 0.95rem; border-radius: 16px;
+      font-size: 0.92rem; line-height: 1.4; white-space: pre-wrap;
+    }
+    .message.other { background-color: #201F28; color: #eee; border-bottom-left-radius: 4px; }
+    .message.mine { background-color: #F5F5F7; color: #100F19; border-bottom-right-radius: 4px; }
+
+    .chat-footer {
+      background-color: #171620; padding: 0.9rem 1.25rem; flex-shrink: 0;
+      display: flex; gap: 0.6rem; border-top: 1px solid rgba(255,255,255,0.05);
+    }
+    .chat-footer input {
+      flex: 1; border: 2px solid #2F2E37; border-radius: 20px;
+      padding: 0.65rem 1rem; outline: none; font-size: 0.95rem;
+      background-color: #100F19; color: #fff; font-family: inherit;
+      transition: border-color 0.2s;
+    }
+    .chat-footer input:focus { border-color: #F5F5F7; }
+    .chat-footer input:disabled { opacity: 0.5; }
+    .chat-footer button {
+      background-color: #F5F5F7; border: none; color: #100F19; font-weight: 700;
+      border-radius: 20px; padding: 0 1.4rem; cursor: pointer;
+      transition: background-color 0.2s, opacity 0.2s;
+      font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.02em;
+    }
+    .chat-footer button:hover { background-color: #E3E3E8; }
+    .chat-footer button:disabled { opacity: 0.4; cursor: default; }
+
+    .footer { background-color: #00000A; padding: 1rem 0; text-align: center; flex-shrink: 0; }
+    .bottom-nav { display: flex; justify-content: space-around; align-items: center; }
+    .nav-item a {
+      display: flex; flex-direction: column; align-items: center;
+      text-decoration: none; color: #fff;
+      padding: 0.3rem 0.9rem; border-radius: 12px;
+      transition: background-color 0.2s, opacity 0.2s;
+    }
+    .nav-item a:hover { opacity: 0.85; }
+    .nav-item.active a { background-color: rgba(255,255,255,0.06); }
+    .nav-item span { font-size: 0.85rem; margin-top: 0.2rem; }
+    .image { width: 40px; height: 40px; overflow: hidden; border-radius: 50%; background-color: #201F28; margin-bottom: 0.3rem; }
+    .image img { width: 100%; height: 100%; object-fit: cover; }
+
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background-color: #171620; }
+    ::-webkit-scrollbar-thumb { background-color: #3F3D46; border-radius: 8px; }
+
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      background-color: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
+      display: flex; justify-content: center; align-items: center;
+      z-index: 999; opacity: 0; pointer-events: none; transition: opacity 0.25s ease;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: auto; }
+    .modal {
+      position: relative;
+      background: linear-gradient(180deg, #2F2E37, #100F19);
+      color: #fff; padding: 2rem 1.75rem 1.75rem; border-radius: 20px;
+      width: 300px; max-width: 90%;
+      display: flex; flex-direction: column; gap: 0.9rem;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.08);
+      transform: scale(0.9) translateY(8px);
+      transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .modal-overlay.open .modal { transform: scale(1) translateY(0); }
+    .modal h3 { font-weight: 600; font-size: 1.1rem; text-align: center; }
+    .modal label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: #999; margin-top: 0.2rem; }
+    .modal input[type="email"], .modal input[type="file"], .modal input[type="text"] {
+      width: 100%; border: 2px solid #2F2E37; border-radius: 10px;
+      padding: 0.6rem 0.8rem; outline: none; background-color: #100F19; color: #fff;
+      font-family: inherit; font-size: 0.95rem; transition: border-color 0.2s;
+    }
+    .modal input:focus { border-color: #F5F5F7; }
+    .modal button {
+      background-color: #F5F5F7; border: none; color: #100F19; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.02em; font-size: 0.85rem;
+      border-radius: 12px; padding: 0.75rem 1rem; cursor: pointer;
+      transition: background-color 0.2s, transform 0.15s;
+    }
+    .modal button:hover { background-color: #E3E3E8; }
+    .modal button:active { transform: scale(0.97); }
+    .modal button:disabled { opacity: 0.5; cursor: default; }
+    .modal .close-btn {
+      position: absolute; top: 0.75rem; right: 0.75rem; width: 28px; height: 28px;
+      display: flex; align-items: center; justify-content: center;
+      background-color: rgba(255,255,255,0.08); color: #ccc; font-size: 0.85rem;
+      border-radius: 50%; cursor: pointer; transition: background-color 0.2s, color 0.2s;
+      margin: 0;
+    }
+    .modal .close-btn:hover { background-color: rgba(255,255,255,0.18); color: #fff; }
+
+    .focus-toast {
+      position: fixed; bottom: 30px; left: 50%; transform: translate(-50%, 16px);
+      background-color: #201F28; color: #F5F5F7; padding: 0.8rem 1.4rem; border-radius: 14px;
+      font-size: 0.9rem; font-weight: 600; text-align: center; max-width: 85%;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.07);
+      opacity: 0; pointer-events: none; transition: opacity 0.3s ease, transform 0.3s ease; z-index: 1200;
+    }
+    .focus-toast.show { opacity: 1; transform: translate(-50%, 0); }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <h1><a href="index.html">Focus.</a></h1>
+    <div class="page-tagline">Communities — real chats with real FOCUS members</div>
+  </header>
+
+  <div class="main-container">
+    <aside class="sidebar" id="sidebar">
+      <h2>Chats</h2>
+      <div id="chatList">
+        <p class="sidebar-empty">Loading your chats...</p>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="new-chat-btn" id="newChatBtn">+ New Chat</div>
+    </aside>
+
+    <section class="chat-area">
+      <div class="chat-header">
+        <div class="chat-header-left">
+          <div class="chat-avatar-lg" id="chatAvatar">·</div>
+          <div class="chat-header-left-text">
+            <h2 id="chatTitle">Select a chat</h2>
+            <span class="member-count" id="chatMemberCount"></span>
+          </div>
+        </div>
+        <div class="chat-header-right">
+          <button id="inviteBtn" disabled>Invite</button>
+          <button id="changeAvatarBtn" disabled>Change Photo</button>
+        </div>
+      </div>
+
+      <div class="messages" id="messagesContainer">
+        <div class="empty-chat" id="emptyChatState">
+          <span class="icon">💬</span>
+          <p>Pick a chat from the left to start talking, or create a new one.</p>
+        </div>
+      </div>
+
+      <div class="chat-footer">
+        <input type="text" id="messageInput" placeholder="Write your message..." disabled />
+        <button id="sendBtn" disabled>Send</button>
+      </div>
+    </section>
+  </div>
+
+  <footer class="footer">
+    <nav class="bottom-nav">
+      <div class="nav-item">
+        <a href="memories.html">
+          <div class="image"><img src="memories.webp" alt="Memories"></div>
+          <span>Memories.</span>
+        </a>
+      </div>
+      <div class="nav-item">
+        <a href="socialclub.html">
+          <div class="image"><img src="person.png" alt="Socialclub"></div>
+          <span>Socialclub.</span>
+        </a>
+      </div>
+      <div class="nav-item active">
+        <a href="communities.html">
+          <div class="image"><img src="communities.png" alt="Communities"></div>
+          <span>Communities.</span>
+        </a>
+      </div>
+      <div class="nav-item">
+        <a href="legacy.html">
+          <div class="image"><span style="font-size:1.4rem;">🏛️</span></div>
+          <span>Legacy.</span>
+        </a>
+      </div>
+    </nav>
+  </footer>
+
+  <!-- Modal para crear chat -->
+  <div class="modal-overlay" id="newChatModal">
+    <div class="modal">
+      <div class="close-btn" id="closeNewChatModal">✕</div>
+      <h3>Create a new Chat</h3>
+      <label for="newChatName">Chat Name</label>
+      <input type="text" id="newChatName" placeholder="My new group...">
+      <button id="createChatBtn">Create Chat</button>
+    </div>
+  </div>
+
+  <!-- Modal para invitar gente -->
+  <div class="modal-overlay" id="inviteModal">
+    <div class="modal">
+      <div class="close-btn" id="closeInviteModal">✕</div>
+      <h3>Invite People</h3>
+      <label for="inviteEmail">Email of a FOCUS user</label>
+      <input type="email" id="inviteEmail" placeholder="someone@example.com">
+      <button id="sendInviteBtn">Send Invite</button>
+    </div>
+  </div>
+
+  <!-- Modal para cambiar foto de perfil del chat -->
+  <div class="modal-overlay" id="changeAvatarModal">
+    <div class="modal">
+      <div class="close-btn" id="closeAvatarModal">✕</div>
+      <h3>Change Chat Photo</h3>
+      <label for="newAvatarFile">Select Image</label>
+      <input type="file" id="newAvatarFile" accept="image/*">
+      <button id="saveAvatarBtn">Save Avatar</button>
+    </div>
+  </div>
+
+  <div class="focus-toast" id="focusToast"></div>
+
+  <script type="module">
+    import {
+      requireAuth, loadUserDoc, resizeImageFile,
+      createChat, listenToUserChats, findUserByEmail, inviteToChat, updateChatAvatar,
+      listenToMessages, sendMessage
+    } from "./firebase-init.js";
+
+    const user = await requireAuth();
+    const uid = user.uid;
+    const savedData = await loadUserDoc(uid);
+    const profileInfo = savedData.profileInfo || {};
+    const myName = profileInfo.userName || profileInfo.realName || "FocusUser";
+
+    const focusToast = document.getElementById('focusToast');
+    let toastTimer;
+    function showToast(message) {
+      focusToast.textContent = message;
+      focusToast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => focusToast.classList.remove('show'), 2400);
+    }
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str || '';
+      return div.innerHTML;
+    }
+
+    const chatList           = document.getElementById('chatList');
+    const chatTitle          = document.getElementById('chatTitle');
+    const chatAvatar         = document.getElementById('chatAvatar');
+    const chatMemberCount    = document.getElementById('chatMemberCount');
+    const messagesContainer  = document.getElementById('messagesContainer');
+    const messageInput       = document.getElementById('messageInput');
+    const sendBtn             = document.getElementById('sendBtn');
+    const newChatBtn         = document.getElementById('newChatBtn');
+    const inviteBtn          = document.getElementById('inviteBtn');
+    const changeAvatarBtn    = document.getElementById('changeAvatarBtn');
+
+    const newChatModal    = document.getElementById('newChatModal');
+    const closeNewChatModal = document.getElementById('closeNewChatModal');
+    const newChatName     = document.getElementById('newChatName');
+    const createChatBtn   = document.getElementById('createChatBtn');
+
+    const inviteModal      = document.getElementById('inviteModal');
+    const closeInviteModal = document.getElementById('closeInviteModal');
+    const inviteEmail      = document.getElementById('inviteEmail');
+    const sendInviteBtn    = document.getElementById('sendInviteBtn');
+
+    const changeAvatarModal = document.getElementById('changeAvatarModal');
+    const closeAvatarModal  = document.getElementById('closeAvatarModal');
+    const newAvatarFile     = document.getElementById('newAvatarFile');
+    const saveAvatarBtn     = document.getElementById('saveAvatarBtn');
+
+    let myChats = [];
+    let currentChatId = null;
+    let unsubscribeMessages = null;
+
+    function openModal(modal) { modal.classList.add('open'); }
+    function closeModal(modal) { modal.classList.remove('open'); }
+
+    // ---- Lista de chats en tiempo real ----
+    listenToUserChats(uid, (chats) => {
+      myChats = chats;
+      renderChatList();
+      // Si el chat abierto cambió de nombre/avatar en otro dispositivo, refrescamos su cabecera
+      if (currentChatId) {
+        const updated = chats.find(c => c.id === currentChatId);
+        if (updated) renderChatHeader(updated);
+      }
+    });
+
+    function renderChatList() {
+      if (myChats.length === 0) {
+        chatList.innerHTML = `<p class="sidebar-empty">You're not in any chats yet. Create one, or ask a friend to invite you by your FOCUS email.</p>`;
+        return;
+      }
+      chatList.innerHTML = myChats.map(chat => {
+        const initial = (chat.name || "?").charAt(0).toUpperCase();
+        return `
+          <div class="chat-item ${chat.id === currentChatId ? 'active' : ''}" data-chat-id="${chat.id}">
+            <div class="chat-avatar" style="${chat.avatar ? `background-image:url(${chat.avatar})` : ''}">
+              ${chat.avatar ? '' : initial}
+            </div>
+            <div class="chat-item-text">
+              <span class="chat-name">${escapeHtml(chat.name)}</span>
+              <span class="chat-last">${escapeHtml(chat.lastMessage || 'No messages yet')}</span>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    chatList.addEventListener('click', (e) => {
+      const item = e.target.closest('.chat-item');
+      if (!item) return;
+      openChat(item.dataset.chatId);
+    });
+
+    function renderChatHeader(chat) {
+      const initial = (chat.name || "?").charAt(0).toUpperCase();
+      chatTitle.textContent = chat.name;
+      chatAvatar.style.backgroundImage = chat.avatar ? `url(${chat.avatar})` : "none";
+      chatAvatar.textContent = chat.avatar ? "" : initial;
+      chatMemberCount.textContent = `${(chat.members || []).length} member${(chat.members || []).length === 1 ? '' : 's'}`;
+    }
+
+    function openChat(chatId) {
+      currentChatId = chatId;
+      const chat = myChats.find(c => c.id === chatId);
+      if (!chat) return;
+
+      renderChatHeader(chat);
+      renderChatList();
+
+      messageInput.disabled = false;
+      sendBtn.disabled = false;
+      inviteBtn.disabled = false;
+      changeAvatarBtn.disabled = false;
+
+      if (unsubscribeMessages) unsubscribeMessages();
+      messagesContainer.innerHTML = `<div class="empty-chat"><span class="icon">⏳</span><p>Loading messages...</p></div>`;
+
+      unsubscribeMessages = listenToMessages(chatId, (messages) => {
+        renderMessages(messages);
+      });
+    }
+
+    function renderMessages(messages) {
+      if (messages.length === 0) {
+        messagesContainer.innerHTML = `<div class="empty-chat"><span class="icon">✍️</span><p>No messages yet. Say hello!</p></div>`;
+        return;
+      }
+      messagesContainer.innerHTML = messages.map(msg => {
+        const mine = msg.senderId === uid;
+        return `
+          <div class="message-row ${mine ? 'mine' : 'other'}">
+            ${!mine ? `<span class="message-sender">${escapeHtml(msg.senderName || 'FocusUser')}</span>` : ''}
+            <div class="message ${mine ? 'mine' : 'other'}">${escapeHtml(msg.text)}</div>
+          </div>`;
+      }).join('');
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    async function handleSend() {
+      if (!currentChatId) return;
+      const text = messageInput.value.trim();
+      if (!text) return;
+      messageInput.value = '';
+      try {
+        await sendMessage(currentChatId, { uid, name: myName, avatar: profileInfo.profilePic }, text);
+      } catch (err) {
+        console.error(err);
+        showToast("Couldn't send that message. Try again.");
+      }
+    }
+    sendBtn.addEventListener('click', handleSend);
+    messageInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleSend(); });
+
+    // ---- Crear chat ----
+    newChatBtn.addEventListener('click', () => {
+      newChatName.value = '';
+      openModal(newChatModal);
+      setTimeout(() => newChatName.focus(), 200);
+    });
+    closeNewChatModal.addEventListener('click', () => closeModal(newChatModal));
+
+    createChatBtn.addEventListener('click', async () => {
+      const name = newChatName.value.trim();
+      if (!name) { showToast("Give your chat a name first."); return; }
+      createChatBtn.disabled = true;
+      try {
+        const newId = await createChat(uid, name);
+        closeModal(newChatModal);
+        showToast(`Chat "${name}" created!`);
+        // El listener en tiempo real actualizará la lista solo; abrimos el chat en cuanto llegue
+        setTimeout(() => openChat(newId), 400);
+      } catch (err) {
+        console.error(err);
+        showToast("Couldn't create the chat. Try again.");
+      } finally {
+        createChatBtn.disabled = false;
+      }
+    });
+
+    // ---- Invitar por email ----
+    inviteBtn.addEventListener('click', () => {
+      if (!currentChatId) return;
+      inviteEmail.value = '';
+      openModal(inviteModal);
+      setTimeout(() => inviteEmail.focus(), 200);
+    });
+    closeInviteModal.addEventListener('click', () => closeModal(inviteModal));
+
+    sendInviteBtn.addEventListener('click', async () => {
+      const email = inviteEmail.value.trim();
+      if (!email) return;
+      sendInviteBtn.disabled = true;
+      sendInviteBtn.textContent = "Inviting...";
+      try {
+        const foundUser = await findUserByEmail(email);
+        if (!foundUser) {
+          showToast("No FOCUS user found with that email.");
+        } else {
+          await inviteToChat(currentChatId, foundUser.uid);
+          showToast(`${email} added to the chat!`);
+          closeModal(inviteModal);
+        }
+      } catch (err) {
+        console.error(err);
+        showToast("Couldn't send the invite. Try again.");
+      } finally {
+        sendInviteBtn.disabled = false;
+        sendInviteBtn.textContent = "Send Invite";
+      }
+    });
+
+    // ---- Cambiar foto del chat ----
+    changeAvatarBtn.addEventListener('click', () => {
+      if (!currentChatId) return;
+      newAvatarFile.value = '';
+      openModal(changeAvatarModal);
+    });
+    closeAvatarModal.addEventListener('click', () => closeModal(changeAvatarModal));
+
+    saveAvatarBtn.addEventListener('click', async () => {
+      const file = newAvatarFile.files[0];
+      if (!file) return;
+      saveAvatarBtn.disabled = true;
+      try {
+        const resized = await resizeImageFile(file, 300, 0.8);
+        await updateChatAvatar(currentChatId, resized);
+        closeModal(changeAvatarModal);
+        showToast("Chat photo updated!");
+      } catch (err) {
+        console.error(err);
+        showToast("Couldn't update the photo. Try again.");
+      } finally {
+        saveAvatarBtn.disabled = false;
+      }
+    });
+
+    /* -- Transición dinámica entre páginas -- */
+    document.querySelectorAll('.nav-item a, .header h1 a').forEach(link => {
+      link.addEventListener('click', (e) => {
+        const href = link.getAttribute('href');
+        if (!href || href.startsWith('#')) return;
+        e.preventDefault();
+        document.body.style.transition = 'opacity 0.22s ease, transform 0.22s ease';
+        document.body.style.opacity = '0';
+        document.body.style.transform = 'translateY(-6px)';
+        setTimeout(() => { window.location.href = href; }, 200);
+      });
+    });
+  </script>
+</body>
+</html>

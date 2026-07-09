@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Focus - Book Recommendations</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+    rel="stylesheet"
+  >
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #100F19;
+      color: #fff;
+      opacity: 0;
+      animation: pageFadeIn 0.4s ease forwards;
+    }
+    @keyframes pageFadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .header {
+      background-color: #00000A;
+      text-align: center;
+      padding: 1.75rem 1rem 1.1rem;
+      position: relative;
+    }
+    .header h1 { font-size: 2.4rem; font-weight: 700; }
+    .header h1 a { text-decoration: none; color: #fff; transition: color 0.2s; }
+    .header h1 a:hover { color: #ccc; }
+    .header .page-tagline { font-size: 0.85rem; color: #777; margin-top: 0.4rem; letter-spacing: 0.02em; }
+    .back-link {
+      position: absolute;
+      left: 1.25rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #999;
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+    .back-link:hover { color: #fff; }
+
+    .search-section {
+      width: 90%;
+      max-width: 640px;
+      margin: 1.75rem auto 0;
+    }
+    .search-bar {
+      display: flex;
+      gap: 0.6rem;
+    }
+    .search-bar input {
+      flex: 1;
+      padding: 0.8rem 1rem;
+      border-radius: 12px;
+      border: 2px solid #2F2E37;
+      background-color: #201F28;
+      color: #fff;
+      font-size: 0.95rem;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .search-bar input:focus { border-color: #F5F5F7; }
+    .search-bar button {
+      background-color: #F5F5F7;
+      color: #100F19;
+      border: none;
+      border-radius: 12px;
+      padding: 0 1.4rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 0.8rem;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    .search-bar button:hover { background-color: #E3E3E8; }
+
+    section.section-block {
+      width: 90%;
+      max-width: 640px;
+      margin: 2rem auto 0;
+    }
+    .section-block h2 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+    .section-caption { font-size: 0.82rem; color: #777; margin-top: -0.6rem; margin-bottom: 1rem; }
+
+    .books-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 1rem;
+    }
+    .book-card {
+      background-color: #201F28;
+      border-radius: 14px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.05);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .book-card:hover { transform: translateY(-3px); box-shadow: 0 12px 24px rgba(0,0,0,0.35); }
+    .book-cover {
+      width: 100%;
+      aspect-ratio: 2 / 3;
+      background-color: #2F2E37;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .book-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .book-cover .placeholder-icon { font-size: 1.8rem; opacity: 0.35; }
+
+    .book-info { padding: 0.7rem 0.7rem 0.9rem; display: flex; flex-direction: column; gap: 0.35rem; flex: 1; }
+    .book-title {
+      font-size: 0.82rem; font-weight: 700; color: #F5F5F7;
+      line-height: 1.3;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .book-author { font-size: 0.72rem; color: #999; }
+    .book-year { font-size: 0.68rem; color: #666; }
+
+    .book-action-btn {
+      margin-top: auto;
+      background-color: #2F2E37;
+      color: #F5F5F7;
+      border: none;
+      border-radius: 8px;
+      padding: 0.4rem 0;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background-color 0.2s, opacity 0.2s;
+    }
+    .book-action-btn:hover { background-color: #3F3D46; }
+    .book-action-btn.added { background-color: #F5F5F7; color: #100F19; }
+    .book-action-btn.remove-btn { background-color: transparent; color: #888; border: 1.5px solid #3F3D46; }
+    .book-action-btn.remove-btn:hover { color: #fff; border-color: #55525f; }
+
+    .empty-state { text-align: center; color: #777; font-size: 0.9rem; padding: 2rem 1rem; }
+    .loading-state { text-align: center; color: #777; font-size: 0.9rem; padding: 1.5rem 1rem; }
+
+    .focus-toast {
+      position: fixed; bottom: 30px; left: 50%; transform: translate(-50%, 16px);
+      background-color: #201F28; color: #F5F5F7;
+      padding: 0.8rem 1.4rem; border-radius: 14px;
+      font-size: 0.9rem; font-weight: 600; text-align: center; max-width: 85%;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.07);
+      opacity: 0; pointer-events: none; transition: opacity 0.3s ease, transform 0.3s ease; z-index: 1200;
+    }
+    .focus-toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+    .footer-space { height: 3rem; }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <a href="index.html" class="back-link">← Focus</a>
+    <h1>Books.</h1>
+    <div class="page-tagline">Grow your mind, one page at a time</div>
+  </header>
+
+  <section class="search-section">
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="Search a title, author, or topic...">
+      <button id="searchBtn">Search</button>
+    </div>
+  </section>
+
+  <section class="section-block" id="resultsSection" style="display:none;">
+    <h2>Results</h2>
+    <div class="books-grid" id="resultsGrid"></div>
+  </section>
+
+  <section class="section-block">
+    <h2>Your reading list</h2>
+    <p class="section-caption">Books you've added, saved to your Focus profile.</p>
+    <div class="books-grid" id="readingListGrid"></div>
+  </section>
+
+  <div class="footer-space"></div>
+  <div class="focus-toast" id="focusToast"></div>
+
+  <script type="module">
+    import { requireAuth, addItem, getItems, deleteItem } from "./firebase-init.js";
+
+    const user = await requireAuth();
+    const uid = user.uid;
+
+    const searchInput      = document.getElementById('searchInput');
+    const searchBtn        = document.getElementById('searchBtn');
+    const resultsSection   = document.getElementById('resultsSection');
+    const resultsGrid      = document.getElementById('resultsGrid');
+    const readingListGrid  = document.getElementById('readingListGrid');
+    const focusToast       = document.getElementById('focusToast');
+
+    let toastTimer;
+    function showToast(message) {
+      focusToast.textContent = message;
+      focusToast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => focusToast.classList.remove('show'), 2400);
+    }
+
+    function coverUrl(coverId, size = "M") {
+      return coverId ? `https://covers.openlibrary.org/b/id/${coverId}-${size}.jpg` : null;
+    }
+
+    // ---- Lista de lectura guardada (Firestore) ----
+    let readingList = await getItems(uid, "books", 100);
+    renderReadingList();
+
+    function renderReadingList() {
+      if (readingList.length === 0) {
+        readingListGrid.innerHTML = `<p class="empty-state">No books added yet — search above and add your first one.</p>`;
+        return;
+      }
+      readingListGrid.innerHTML = readingList.map(book => `
+        <div class="book-card">
+          <div class="book-cover">
+            ${book.coverId ? `<img src="${coverUrl(book.coverId)}" alt="${escapeHtml(book.title)}">` : `<span class="placeholder-icon">📕</span>`}
+          </div>
+          <div class="book-info">
+            <span class="book-title">${escapeHtml(book.title)}</span>
+            <span class="book-author">${escapeHtml(book.author || 'Unknown author')}</span>
+            ${book.year ? `<span class="book-year">${book.year}</span>` : ''}
+            <button class="book-action-btn remove-btn" data-remove-id="${book.id}">Remove</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    readingListGrid.addEventListener('click', async (e) => {
+      const btn = e.target.closest('[data-remove-id]');
+      if (!btn) return;
+      const itemId = btn.dataset.removeId;
+      try {
+        await deleteItem(uid, "books", itemId);
+        readingList = readingList.filter(b => b.id !== itemId);
+        renderReadingList();
+        showToast("Removed from your reading list.");
+      } catch (err) {
+        console.error(err);
+        showToast("Couldn't remove that book. Try again.");
+      }
+    });
+
+    // ---- Búsqueda en Open Library ----
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str || '';
+      return div.innerHTML;
+    }
+
+    async function runSearch() {
+      const q = searchInput.value.trim();
+      if (!q) return;
+
+      resultsSection.style.display = 'block';
+      resultsGrid.innerHTML = `<p class="loading-state">Searching Open Library...</p>`;
+
+      try {
+        const res = await fetch(`https://openlibrary.org/search.json?q=${encodeURIComponent(q)}&limit=12`);
+        if (!res.ok) throw new Error("Open Library request failed");
+        const data = await res.json();
+        renderResults(data.docs || []);
+      } catch (err) {
+        console.error(err);
+        resultsGrid.innerHTML = `<p class="empty-state">Couldn't reach the book catalog right now. Try again in a moment.</p>`;
+      }
+    }
+
+    function renderResults(docs) {
+      if (docs.length === 0) {
+        resultsGrid.innerHTML = `<p class="empty-state">No books found for that search.</p>`;
+        return;
+      }
+
+      resultsGrid.innerHTML = docs.map(doc => {
+        const alreadyAdded = readingList.some(b => b.workKey === doc.key);
+        const author = (doc.author_name || []).slice(0, 2).join(', ');
+        return `
+          <div class="book-card">
+            <div class="book-cover">
+              ${doc.cover_i ? `<img src="${coverUrl(doc.cover_i)}" alt="${escapeHtml(doc.title)}">` : `<span class="placeholder-icon">📕</span>`}
+            </div>
+            <div class="book-info">
+              <span class="book-title">${escapeHtml(doc.title)}</span>
+              <span class="book-author">${escapeHtml(author || 'Unknown author')}</span>
+              ${doc.first_publish_year ? `<span class="book-year">${doc.first_publish_year}</span>` : ''}
+              <button class="book-action-btn ${alreadyAdded ? 'added' : ''}"
+                data-work-key="${doc.key}"
+                data-title="${escapeHtml(doc.title)}"
+                data-author="${escapeHtml(author)}"
+                data-year="${doc.first_publish_year || ''}"
+                data-cover-id="${doc.cover_i || ''}"
+                ${alreadyAdded ? 'disabled' : ''}>
+                ${alreadyAdded ? 'Added ✓' : '+ Add'}
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    resultsGrid.addEventListener('click', async (e) => {
+      const btn = e.target.closest('[data-work-key]');
+      if (!btn || btn.disabled) return;
+
+      btn.disabled = true;
+      btn.textContent = "Adding...";
+
+      const bookData = {
+        workKey: btn.dataset.workKey,
+        title: btn.dataset.title,
+        author: btn.dataset.author,
+        year: btn.dataset.year || null,
+        coverId: btn.dataset.coverId || null
+      };
+
+      try {
+        const newId = await addItem(uid, "books", bookData);
+        readingList.unshift({ id: newId, ...bookData });
+        renderReadingList();
+        btn.textContent = "Added ✓";
+        btn.classList.add('added');
+        showToast(`Added "${bookData.title}" to your reading list!`);
+      } catch (err) {
+        console.error(err);
+        btn.disabled = false;
+        btn.textContent = "+ Add";
+        showToast("Couldn't add that book. Try again.");
+      }
+    });
+
+    searchBtn.addEventListener('click', runSearch);
+    searchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') runSearch(); });
+  </script>
+</body>
+</html>

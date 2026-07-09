@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Focus - Log in</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+    rel="stylesheet"
+  >
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #1f1f1f;
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header {
+      background-color: #000;
+      text-align: center;
+      padding: 2rem 1rem;
+    }
+    .header h1 { font-size: 3rem; font-weight: 700; }
+
+    .auth-container {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem 1rem;
+    }
+
+    .auth-box {
+      background-color: #2c2c2c;
+      padding: 2rem;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 360px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    .auth-box h2 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+
+    .auth-box label {
+      font-size: 0.9rem;
+      display: block;
+      margin-bottom: 0.3rem;
+      margin-top: 1rem;
+    }
+
+    .auth-box input {
+      width: 100%;
+      padding: 0.7rem;
+      border-radius: 8px;
+      border: none;
+      outline: none;
+      background-color: #1f1f1f;
+      color: #fff;
+      font-size: 1rem;
+    }
+
+    .auth-box button {
+      width: 100%;
+      margin-top: 1.5rem;
+      padding: 0.8rem;
+      background-color: #57e32c;
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    .auth-box button:hover { background-color: #45c229; }
+
+    .switch-mode {
+      text-align: center;
+      margin-top: 1.2rem;
+      font-size: 0.9rem;
+      color: #aaa;
+    }
+    .switch-mode a {
+      color: #57e32c;
+      text-decoration: none;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .switch-mode a:hover { text-decoration: underline; }
+
+    #errorMsg {
+      color: #ff6b6b;
+      font-size: 0.85rem;
+      margin-top: 1rem;
+      text-align: center;
+      min-height: 1rem;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <h1>Focus.</h1>
+  </header>
+
+  <div class="auth-container">
+    <div class="auth-box">
+      <h2 id="formTitle">Log in to your account</h2>
+
+      <form id="authForm">
+        <label for="email">Email</label>
+        <input type="email" id="email" placeholder="you@example.com" required>
+
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="••••••••" required minlength="6">
+
+        <button type="submit" id="submitBtn">Log in</button>
+      </form>
+
+      <p id="errorMsg"></p>
+
+      <p class="switch-mode">
+        <span id="switchText">Don't have an account?</span>
+        <a id="switchLink">Sign up</a>
+      </p>
+    </div>
+  </div>
+
+  <script type="module">
+    import { auth } from "./firebase-init.js";
+    import {
+      signInWithEmailAndPassword,
+      createUserWithEmailAndPassword,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    // Si ya hay sesión iniciada, vamos directos a la app
+    onAuthStateChanged(auth, (user) => {
+      if (user) window.location.href = "index.html";
+    });
+
+    let mode = "login"; // "login" | "signup"
+
+    const formTitle  = document.getElementById("formTitle");
+    const authForm   = document.getElementById("authForm");
+    const emailInput = document.getElementById("email");
+    const passInput  = document.getElementById("password");
+    const submitBtn  = document.getElementById("submitBtn");
+    const errorMsg   = document.getElementById("errorMsg");
+    const switchText = document.getElementById("switchText");
+    const switchLink = document.getElementById("switchLink");
+
+    function setMode(newMode) {
+      mode = newMode;
+      errorMsg.textContent = "";
+      if (mode === "login") {
+        formTitle.textContent = "Log in to your account";
+        submitBtn.textContent = "Log in";
+        switchText.textContent = "Don't have an account?";
+        switchLink.textContent = "Sign up";
+      } else {
+        formTitle.textContent = "Create your account";
+        submitBtn.textContent = "Sign up";
+        switchText.textContent = "Already have an account?";
+        switchLink.textContent = "Log in";
+      }
+    }
+
+    switchLink.addEventListener("click", () => {
+      setMode(mode === "login" ? "signup" : "login");
+    });
+
+    authForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      errorMsg.textContent = "";
+      submitBtn.disabled = true;
+
+      const email = emailInput.value.trim();
+      const password = passInput.value;
+
+      try {
+        if (mode === "login") {
+          await signInWithEmailAndPassword(auth, email, password);
+        } else {
+          await createUserWithEmailAndPassword(auth, email, password);
+        }
+        window.location.href = "index.html";
+      } catch (err) {
+        errorMsg.textContent = translateError(err.code);
+        submitBtn.disabled = false;
+      }
+    });
+
+    function translateError(code) {
+      switch (code) {
+        case "auth/invalid-email": return "El email no es válido.";
+        case "auth/user-not-found": return "No existe ninguna cuenta con ese email.";
+        case "auth/wrong-password": return "Contraseña incorrecta.";
+        case "auth/email-already-in-use": return "Ya existe una cuenta con ese email.";
+        case "auth/weak-password": return "La contraseña debe tener al menos 6 caracteres.";
+        default: return "Algo ha ido mal. Inténtalo de nuevo.";
+      }
+    }
+  </script>
+</body>
+</html>
